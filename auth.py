@@ -19,12 +19,14 @@ scope = [
     "opportunities.readonly",
     "contacts.readonly",
     "locations.readonly",
+    "calendars/events.write",
+    "calendars/events.readonly",
     "calendars.write",
     "calendars.readonly"
 ]
 
 # Cria a sessão OAuth
-oauth = OAuth2Session(clientId, scope=scope, redirect_uri=redirectUrl)
+oauth = OAuth2Session(clientId, redirect_uri=redirectUrl, scope=scope)
 
 # 1) Obter a URL de autorização e redirecionar o usuário
 authorization_url, state = oauth.authorization_url(authUrl)
