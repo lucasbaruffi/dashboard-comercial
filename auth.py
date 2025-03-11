@@ -55,4 +55,18 @@ else:
 
 # Pega o Token
 
-token = requests.post()
+body = {
+    "client_id": clientId,
+    "client_secret": clientSecret,
+    "grant_type": "authorization_code",
+    "code": auth_code
+}
+
+token = requests.post("https://services.leadconnectorhq.com/oauth/token",data=body )
+
+# Extrai o Token de Acesso da resposta
+token = token.json()
+token = token['access_token']
+
+# Define a variável de Ambiente com o Token
+set_key(".env", "AUTHORIZATION", token)
