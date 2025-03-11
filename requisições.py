@@ -61,21 +61,8 @@ def getCalendarEvents():
     statusCode = r.status_code
 
     if statusCode == 200:
-        r = r.json()
-
-        print("Requisição Funcionou")
-
-        for event in r["events"]:
-            print(f'''Id: {event["id"]}
-Local: {event["address"]}
-Título: {event["title"]}
-Status: {event["appointmentStatus"]}
-
-''')
-
-
+        r = r.json()        
+        return r["events"]
     else:
         r = r.text
         print(r)    
-    
-getCalendarEvents()
