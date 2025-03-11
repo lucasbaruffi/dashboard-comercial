@@ -2,6 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv, set_key
 from requests_oauthlib import OAuth2Session
+import urllib.parse
 
 
 # Carrega os dados do .env
@@ -37,12 +38,21 @@ print(authorization_url.replace("+","%20"))
 #    Copie a URL de redirecionamento (que contém o 'code') e cole aqui.
 redirect_response = input("Cole aqui a URL completa de redirecionamento:\n")
 
-# 3) Trocar o 'code' pelo 'access token'
-token = oauth.fetch_token(
-    token_url=tokenUrl,
-    authorization_response=redirect_response,
-    client_secret=clientSecret
-)
+# Faz o parse da URL
+parsed_url = urllib.parse.urlparse(redirect_response)
 
-print("Token obtido com sucesso:")
-print(token)
+# Extrai os parâmetros de query em forma de dicionário
+query_params = urllib.parse.parse_qs(parsed_url.query)
+
+# Pega o valor de 'code'
+auth_code = query_params.get("code", [None])[0]
+
+if not auth_code:
+    print("Não foi possível encontrar o parâmetro 'code' na URL!")
+else:
+    print("Code obtido:", auth_code)
+
+
+# Pega o Token
+
+token = requests.post()
