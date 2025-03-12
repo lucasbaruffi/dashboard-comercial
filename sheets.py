@@ -41,8 +41,6 @@ def adicionarAgendamento(data=list):
         linha = busca.row
         print(f"Encontrada na linha {linha} da Planilha")
     else:
-        print("Não encontrado")
         # Adiciona a nova linha na última linha disponível
         linhaAdicionada = tabela.append_row(nova_linha, include_values_in_response=True)
-
-        print(f"Linha adicionada com sucesso em {linhaAdicionada.tableRange}")
+        print(f"Linha adicionada com sucesso em {linhaAdicionada["updates"]["updatedRange"]}")
