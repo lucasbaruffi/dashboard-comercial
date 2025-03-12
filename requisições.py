@@ -56,7 +56,20 @@ def getCalendarEvents():
         "endTime": "1741662000000"
     }
 
-    r = requests.get("https://services.leadconnectorhq.com/calendars/events", params=query, headers=header)
+    try:
+        r = requests.get("https://services.leadconnectorhq.com/calendars/events", params=query, headers=header)
+
+        statusCode = r.status_code
+
+        if statusCode == 200:
+            r = r.json()        
+            return r["events"]
+        else:
+            r = r.text
+            print(r)
+    except requests.exceptions.RequestException as e:
+        print(f"Erro na requisição de eventos: {e}")
+        return []
 
     statusCode = r.status_code
 
