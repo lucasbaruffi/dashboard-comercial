@@ -205,8 +205,14 @@ def formatEvents(eventos:list = []):
 
     Verifica se não retornou uma lista vazia
 
+    Retorno
+    -
+        Retorna uma lista pronta para ser adicionada no Google Sheets, seguindo esta ordem:
+
     >>> formatEvents(getCalendarEvents())
     '''
+    from sheets import adicionarAgendamento
+
     # Deixa apenas os eventos
     eventos = eventos["events"]
 
@@ -218,32 +224,31 @@ def formatEvents(eventos:list = []):
     else:
         log("sucesso", f"Encontradas {len(eventos)} reuniões")
 
+        for evento in eventos:
+
+            # Procura a última oportunidade deste contato
+
+
+
+            dados = [
+                evento.get("id", ""),
+                evento.get("address", ""),
+                evento.get("title", ""),
+                evento.get("calendarId", ""),
+                evento.get("locationId", ""),
+                evento.get("contactId", ""),
+                evento.get("groupId", ""),
+                evento.get("appointmentStatus", ""),
+                evento.get("assignedUserId", ""),
+                evento.get("startTime", ""),
+                evento.get("endTime", ""),
+                evento.get("dateAdded", ""),
+                evento.get("dateUpdated", ""),
+                evento.get("createdBy", {}).get("userId", ""),
+                evento.get("opportunityId", "")
+        ]   
+ 
+        adicionarAgendamento(dados)
+ 
+
 formatEvents(getCalendarEvents())
-
-
-
-# from sheets import adicionarAgendamento
-# 
-# eventos = getCalendarEvents()
-# 
-# for evento in eventos:
-#     dados = [
-#         evento.get("id", ""),
-#         evento.get("address", ""),
-#         evento.get("title", ""),
-#         evento.get("calendarId", ""),
-#         evento.get("locationId", ""),
-#         evento.get("contactId", ""),
-#         evento.get("groupId", ""),
-#         evento.get("appointmentStatus", ""),
-#         evento.get("assignedUserId", ""),
-#         evento.get("startTime", ""),
-#         evento.get("endTime", ""),
-#         evento.get("dateAdded", ""),
-#         evento.get("dateUpdated", ""),
-#         evento.get("createdBy", {}).get("userId", ""),
-#         evento.get("opportunityId", "")
-#    ]   
-# 
-#    #adicionarAgendamento(dados)
-# 
