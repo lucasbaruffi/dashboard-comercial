@@ -186,11 +186,27 @@ def getOpportunity(contactId: int = None):
             # Pega apenas alista de oportunidades
             oportunidades = r["opportunities"]
 
-            # Pega a útlima  oportunidade da lista - a mais antiga no CRM
-            oportunidade = oportunidades[len(oportunidades)-1]
+            # Verifica se tem oportunidades
+            if len(oportunidades) == 0:
+                log("erro", f"Oportunidade do contato {contactId} não encontrada")
+                return ""
+            
+            else:
+                # Pega a útlima  oportunidade da lista - a mais antiga no CRM
+                oportunidade = oportunidades[len(oportunidades)-1]["id"]
+
+                log("sucesso", f"Oportunidade do cliente {contactId} encontrada")
 
 
-            print(oportunidade)
+                # Formata os dados em lista
+                # ---------------
+
+                # Salva a oportunidade na planilha
+                # ---------------
+
+                return oportunidade
+
+
 
 
         except requests.exceptions.HTTPError as http_err:
@@ -203,8 +219,6 @@ def getOpportunity(contactId: int = None):
             log("erro ",f"Erro na requisição: {req_err}")
         except Exception as e:
             log("erro",f"Ocorreu um erro inesperado: {e}")
-
-getOpportunity("KQBEJsZ3WvVNUIysF6RW")
 
 def getCalendarEvents():
     try:
@@ -280,7 +294,7 @@ def formatEvents(eventos:list = []):
         for evento in eventos:
 
             # Procura a última oportunidade deste contato
-
+            opportunityId = getOpportunity(evento.get("contactId", ""))
 
 
             dados = [
@@ -298,8 +312,9 @@ def formatEvents(eventos:list = []):
                 evento.get("dateAdded", ""),
                 evento.get("dateUpdated", ""),
                 evento.get("createdBy", {}).get("userId", ""),
-                evento.get("opportunityId", "")
+                opportunityId
         ]   
  
-        adicionarAgendamento(dados)
+            adicionarAgendamento(dados)
  
+formatEvents(getCalendarEvents())
