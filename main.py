@@ -9,57 +9,82 @@ authorization = os.getenv("AUTHORIZATION")
 locationId = os.getenv("LOCATION_ID")
 calendarId = os.getenv("CALENDAR_ID")
 
-def getCalendars():
+# Todas utilizam o mesmo Header, por isso está fora das funções
+header = {
+    "Authorization": f"Bearer {authorization}",
+    "Version": "2021-04-15"
+}
 
-    header = {
-        "Authorization": f"Bearer {authorization}",
-        "Version": "2021-04-15"
-    }
-    query = {
-        "locationId": locationId
+
+def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
+    '''
+    Retorna as datas em timestamp (formato aceito pelo GHL)
+
+    O usuário passa quantos dias antes e depois do dia atual ele quer em timestamp.
+    O código recebe e calcula a diferença baseado no dia atual.
+
+    Se nenhum parâmetro for informado, ele pegará 30 dias antes e 15 dias depois
+
+    Entrada:
+       diasAntes (int): quantos dias antes do atual quer transformat em timestamp.
+       diasDepois (int): quantos dias depois do atual quer transformat em timestamp.
+   
+       
+    Saída:
+        Sairá uma tupla com o tempo anterior e posterior, sucessivamente
+
+    Exemplo:
+    >>> definePeriodo(10, 5):
+    >>> return: 99999999, 99999999
+    '''
+
+    try:
+        # Validação do tipo:
+        if not isinstance(diasAntes, int) or not isinstance(diasDepois, int):
+            raise TypeError("Os parâmetros 'diasAntes' e 'diasDepois' devem ser inteiros.")
+
+        # Validação de dias negativos:
+        if diasAntes <= 0 or diasDepois <= 0:
+            raise ValueError("Os parâmetros não podem ser 0 ou negativos.")
+
+        # Se está tudo certo segue a função
+        from datetime import datetime, timedelta
+
+        # Define o dia atual
+        data_atual = datetime.now()
+
+        # Calcula a diferença de tempo
+        dataDiasAntes = data_atual - timedelta(days=diasAntes)
+        dataDiasDepois = data_atual + timedelta(days=diasDepois)
+
+        # Converte para o formato Epoch (timestamp)
+        epoch_x_dias_antes = int(dataDiasAntes.timestamp())
+        epoch_x_dias_depois = int(dataDiasDepois.timestamp())
+
+        return epoch_x_dias_antes, epoch_x_dias_depois
+
+    except (TypeError, ValueError) as erro:
+        print(f"Ocorreu um erro: {erro}")
+
+
+def getCalendarEvents():
+    
+    startTime, endTime = definePeriodo()
+
+    url = "https://services.leadconnectorhq.com/calendars/events"
+
+    params = {
+        "locationId": locationId,
+        "calendarId": calendarId,
+        "startTime": startTime,
+        "endTime": endTime
     }
 
-    r = requests.get("https://services.leadconnectorhq.com/calendars/", params=query, headers=header)
+    r = requests.get(url=url, params=params, headers=header)
 
     statusCode = r.status_code
 
     # Erro por token expirado: 401
-    if statusCode == 200:
-        r = r.json()
-
-        print("Requisição Funcionou")
-
-        for calendar in r["calendars"]:
-            print(calendar["name"])
-
-
-    else:
-        r = r.text
-        print(r)
-
-def getCalendarEvents():
-    from tratamento import dataEpoch
-    # start = str(input("Qual a data inicial? (DD/MM/AAAA HH:mm) "))
-    # end = str(input("Qual a data final? (DD/MM/AAAA HH:mm) "))
-# 
-    # startFormated = dataEpoch(start)
-    # endFormated = dataEpoch(end)
-
-
-    header = {
-        "Authorization": f"Bearer {authorization}",
-        "Version": "2021-04-15"
-    }
-    query = {
-        "locationId": locationId,
-        "calendarId": calendarId,
-        "startTime": "1741489200000",
-        "endTime": "1741662000000"
-    }
-
-    r = requests.get("https://services.leadconnectorhq.com/calendars/events", params=query, headers=header)
-
-    statusCode = r.status_code
 
     if statusCode == 200:
         r = r.json()        
@@ -76,7 +101,7 @@ def getCalendarEvents():
 
 from sheets import adicionarAgendamento
 
-eventos = getCalendarEvents()
+#eventos = getCalendarEvents()
 
 for evento in eventos:
     dados = [
@@ -97,4 +122,4 @@ for evento in eventos:
         evento.get("opportunityId", "")
     ]   
 
-    adicionarAgendamento(dados)
+    #adicionarAgendamento(dados)
