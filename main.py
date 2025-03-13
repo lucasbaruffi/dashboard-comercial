@@ -54,12 +54,6 @@ def get_worksheet():
 
 # --------- Fim Autenticação do Google -------------
 
-# Todas utilizam o mesmo Header, por isso está fora das funções
-header = {
-    "Authorization": f"Bearer {authorization}",
-    "Version": "2021-04-15"
-}
-
 
 def log(status: str = "regular", obs: str = "Sem observações"):
     '''
@@ -157,6 +151,55 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
     except Exception as erro:
         log("errro", f"Ocorreu um erro: {erro}")
 
+def getOpportunity(contactId: int = None):
+
+    # Se não receber o ContactId, retorna "Não Encontrado"
+    if not contactId:
+        log("erro", "Id do contato não informado para busca da oportunidade")
+        return "Não Encontrado"
+
+    else:
+        try:
+            # Define parâmetros para requisição da API:
+            url = "https://services.leadconnectorhq.com/opportunities/search"
+        
+            params = {
+                "contact_id": contactId,
+                "location_id": locationId
+            }
+
+            header = {
+                "Authorization": f"Bearer {authorization}",
+                "Version": "2021-07-28"
+            }            
+
+            # Faz a requisição
+            r = requests.get(url, params=params, headers=header)
+
+
+            # Se a resposta tiver um status code de erro, raise_for_status() vai disparar uma exceção HTTPError
+            r.raise_for_status()
+
+            # Transforma a resposta em Json e retorna
+            r = r.json()     
+
+            log("sucesso")
+
+
+
+        except requests.exceptions.HTTPError as http_err:
+            # Exemplo: tratamento específico para token expirado (status 401)
+            if r.status_code == 401:
+                log("erro", "Erro 401: Token expirado.")
+            else:
+                log("erro",f"Erro HTTP: {http_err}")
+        except requests.exceptions.RequestException as req_err:
+            log("erro ",f"Erro na requisição: {req_err}")
+        except Exception as e:
+            log("erro",f"Ocorreu um erro inesperado: {e}")
+
+getOpportunity("LDD0wZlZyICh6UO8qb8U")
+
 def getCalendarEvents():
     try:
         # Define o Início e Fim 
@@ -173,6 +216,10 @@ def getCalendarEvents():
             "endTime": endTime
         }
 
+        header = {
+            "Authorization": f"Bearer {authorization}",
+            "Version": "2021-04-15"
+        }
         # Faz a requisição
         r = requests.get(url=url, params=params, headers=header)
   
@@ -250,5 +297,3 @@ def formatEvents(eventos:list = []):
  
         adicionarAgendamento(dados)
  
-
-formatEvents(getCalendarEvents())
