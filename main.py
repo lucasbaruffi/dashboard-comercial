@@ -1,6 +1,9 @@
 import requests
 import os
 from dotenv import load_dotenv
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
 
 # Carrega as variáveis de Ambiente
 load_dotenv()
@@ -9,6 +12,48 @@ authorization = os.getenv("AUTHORIZATION")
 locationId = os.getenv("LOCATION_ID")
 calendarId = os.getenv("CALENDAR_ID")
 
+
+# ---------- Autenticação do Google ----------------
+# Define os escopos de acesso
+scopes = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+# Variáveis globais para armazenar o cliente e a planilha
+_cliente = None
+_planilha = None
+
+def get_gspread_client():
+    """
+    Retorna o cliente autenticado do gspread.
+    Se já estiver autenticado, retorna o cliente armazenado; 
+    caso contrário, realiza a autenticação e o armazena.
+    """
+    global _cliente
+    if _cliente is None:
+        creds = Credentials.from_service_account_file("credentials.json", scopes=scopes)
+        _cliente = gspread.authorize(creds)
+    return _cliente
+
+def get_worksheet():
+    """
+    Retorna a planilha.
+    Se a planilha já foi aberta, retorna ela; 
+    caso contrário, abre a planilha e a armazena.
+    """
+    global _planilha
+    if _planilha is None:
+        # Obtém o ID da planilha a partir da variável de ambiente
+        log_sheet_id = os.getenv("GOOGLE_SHEET_LOG_KEY")
+        if not log_sheet_id:
+            raise ValueError("GOOGLE_SHEET_LOG_KEY não está definida.")
+        client = get_gspread_client()
+        _planilha = client.open_by_key(log_sheet_id)
+    return _planilha
+
+# --------- Fim Autenticação do Google -------------
+
 # Todas utilizam o mesmo Header, por isso está fora das funções
 header = {
     "Authorization": f"Bearer {authorization}",
@@ -16,7 +61,7 @@ header = {
 }
 
 
-def log(status: str = "regular", obs: str = None):
+def log(status: str = "regular", obs: str = "Sem observações"):
     '''
     O Objetivo dessa função é ter um log de tudo o que está acontecendo.
 
@@ -38,8 +83,26 @@ def log(status: str = "regular", obs: str = None):
     Exemplo:
     >>> log("sucesso", "Foram encontradas 75 reuniões")
     '''
+    
+    try:
+        # Puxa a planilha:
+        planilha = get_worksheet()
 
+    except Exception as e:
+        print("Erro ao inicializar a planilha de log:", e)
+        return
+    
+    # Abre a tabela de logs
+    tabelaLogs = planilha.worksheet("logs")
 
+    # Define o dia de hoje e formata
+    diaAtual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Define a nova linha
+    novaLinha = [diaAtual, status, obs]
+
+    # Adiciona a linha
+    tabelaLogs.append_row(novaLinha)
 
 
 
