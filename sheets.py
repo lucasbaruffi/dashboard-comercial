@@ -6,18 +6,6 @@ def adicionarAgendamento(data=list):
     from main import log
     from time import sleep
 
-    global requestsFeitas
-
-    _requestsFeitas = None
-
-    if _requestsFeitas == None:
-        requestsFeitas = 0
-
-    if requestsFeitas == 59:
-        sleep(60)
-        requestsFeitas = 0
-        log("regular", "Aguardando 1 minuto para seguir")
-
     # Carrega as variáveis de Ambiente
     load_dotenv()
 

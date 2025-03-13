@@ -5,6 +5,8 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 
+googleRequests = 0
+
 # Carrega as variáveis de Ambiente
 load_dotenv()
 
@@ -82,21 +84,92 @@ def log(status: str = "regular", obs: str = "Sem observações"):
         # Puxa a planilha:
         planilha = get_worksheet()
 
+        # Abre a tabela de logs
+        tabelaLogs = planilha.worksheet("logs")
+        # Define o dia de hoje e formata
+        diaAtual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        # Define a nova linha
+        novaLinha = [diaAtual, status, obs]
+        # Adiciona a linha
+        tabelaLogs.append_row(novaLinha)
+
     except Exception as e:
         print("Erro ao inicializar a planilha de log:", e)
         return
     
-    # Abre a tabela de logs
-    tabelaLogs = planilha.worksheet("logs")
 
-    # Define o dia de hoje e formata
-    diaAtual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    # Define a nova linha
-    novaLinha = [diaAtual, status, obs]
+def atualizarAgendamentos(agendamentos: list = [[]]):
+    '''
+    Adiciona ou atualiza agendamentos na planilha
 
-    # Adiciona a linha
-    tabelaLogs.append_row(novaLinha)
+    Recebe uma lista re reuniões já formatados (do formatEvents), verifica se já existe na planilha.
+    
+    Se não existe, adiciona uma nova linha
+    
+    Se existe, verifica se tem diferença dos dados
+    
+    Se tiver, atualiza.
+    
+    Senão tiver diferença, ignora
+    '''
+    # Verifica se possui reuniões
+    if agendamentos == []:
+        log('erro', 'Nenhuma reunião para atualizar.')
+
+    else:
+        try:
+            # Puxa a planilha
+            planilha = get_worksheet()
+
+            # Abre a tavela de agendamentos 
+            tabelaAgendamentos = planilha.worksheet("agendamentos")
+
+            # Salva as reuniões agendadas em uma lista
+            reunioesSalvas = tabelaAgendamentos.get_all_values()
+            log("sucesso", "Localizados todos os agendamentos Salvos na planilha")
+            log(obs="Separando as reuniões...")
+
+            reunioesAtualizar = []
+            reunioesAdicionar = []
+
+            # Pra cada agendamento
+            for agendamento in agendamentos:
+                id = agendamento[0]
+
+                # Procura na lista de reuniões salvas
+                for cont, reuniaoSalva in enumerate(reunioesSalvas):
+
+                    # Se o Id de alguma for igual
+                    if reuniaoSalva[0] == id:
+
+                        # Se estiver igual
+                        if reuniaoSalva == agendamento:
+                            break
+
+                        else:
+                            # Adiciona à lista dos que precisam atualizar
+                            reunioesAtualizar.append(agendamento)
+                            break
+                    else:
+                        # Não é igual é é o ultimo da lista que foi procurado
+                        if cont == len(reunioesSalvas)-1:
+                            # Se não estiver em nenhum lugar, será adicionado
+                            reunioesAdicionar.append(agendamento)
+
+            log(obs=f"Serão atualizadas {len(reunioesAtualizar)} reuniões")
+            log(obs=f"Serão adicionadas {len(reunioesAdicionar)} reuniões")
+            log(obs=f"Não serão modificadas {len(agendamentos) - len(reunioesAtualizar) - len(reunioesAdicionar)} reuniões")
+
+            
+            # Adicionar reuniões
+            tabelaAgendamentos.append_rows(reunioesAdicionar)
+            log("sucesso", "Reuniões adicionadas!")
+
+
+
+        except Exception as e:
+            log("errro", f"Ocorreu um erro: {e}")
 
 def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
     '''
@@ -195,7 +268,7 @@ def getOpportunity(contactId: int = None):
                 # Pega a útlima  oportunidade da lista - a mais antiga no CRM
                 oportunidade = oportunidades[len(oportunidades)-1]["id"]
 
-                log("sucesso", f"Oportunidade do cliente {contactId} encontrada")
+                # log("sucesso", f"Oportunidade do cliente {contactId} encontrada")
 
 
                 # Formata os dados em lista
@@ -291,6 +364,10 @@ def formatEvents(eventos:list = []):
     else:
         log("sucesso", f"Encontradas {len(eventos)} reuniões")
 
+        # Lista com todos os eventos formatados
+        dadosEventos = []
+
+        log(obs="Buscando Oportunidades...")
         for evento in eventos:
 
             # Procura a última oportunidade deste contato
@@ -313,8 +390,13 @@ def formatEvents(eventos:list = []):
                 evento.get("dateUpdated", ""),
                 evento.get("createdBy", {}).get("userId", ""),
                 opportunityId
-        ]   
- 
-            adicionarAgendamento(dados)
- 
+            ]   
+
+            # Adiciona cada evento na lista
+            dadosEventos.append(dados)
+        
+        # Passa a lista de eventos para o Google Sheets
+        atualizarAgendamentos(dadosEventos)
+        
+
 formatEvents(getCalendarEvents())
