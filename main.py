@@ -104,8 +104,6 @@ def log(status: str = "regular", obs: str = "Sem observações"):
     # Adiciona a linha
     tabelaLogs.append_row(novaLinha)
 
-
-
 def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
     '''
     Retorna as datas em timestamp (formato aceito pelo GHL)
@@ -137,7 +135,7 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
 
         # Validação de dias negativos:
         if diasAntes <= 0 or diasDepois <= 0:
-            raise ValueError("Os parâmetros não podem ser 0 ou negativos.")
+            raise ValueError("Os parâmetros de data não podem ser 0 ou negativos.")
 
         # Se está tudo certo segue a função
         from datetime import datetime, timedelta
@@ -153,11 +151,11 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
         epoch_x_dias_antes = int(dataDiasAntes.timestamp() * 1000)
         epoch_x_dias_depois = int(dataDiasDepois.timestamp() * 1000)
 
+        log("sucesso", "Tempo convertido para timestamp")
         return epoch_x_dias_antes, epoch_x_dias_depois
 
-    except (TypeError, ValueError) as erro:
-        print(f"Ocorreu um erro: {erro}")
-
+    except Exception as erro:
+        log("errro", f"Ocorreu um erro: {erro}")
 
 def getCalendarEvents():
     try:
@@ -177,6 +175,7 @@ def getCalendarEvents():
 
         # Faz a requisição
         r = requests.get(url=url, params=params, headers=header)
+  
 
         # Se a resposta tiver um status code de erro, raise_for_status() vai disparar uma exceção HTTPError
         r.raise_for_status()
@@ -185,47 +184,65 @@ def getCalendarEvents():
         r = r.json()     
 
         # Retorna a lista
+        log("sucesso", "Lista de reuniões coletada")
         return r
     
 
     except requests.exceptions.HTTPError as http_err:
         # Exemplo: tratamento específico para token expirado (status 401)
         if r.status_code == 401:
-            print("Erro 401: Token expirado.")
+            log("erro", "Erro 401: Token expirado.")
         else:
-            print(f"Erro HTTP: {http_err}")
+            log("erro",f"Erro HTTP: {http_err}")
     except requests.exceptions.RequestException as req_err:
-        print(f"Erro na requisição: {req_err}")
+        log("erro ",f"Erro na requisição: {req_err}")
     except Exception as e:
-        print(f"Ocorreu um erro inesperado: {e}")
+        log("erro",f"Ocorreu um erro inesperado: {e}")
+
+def formatEvents(eventos:list = []):
+    '''
+    Recebe os eventos do getcCalendarEvents.
+
+    Verifica se não retornou uma lista vazia
+
+    >>> formatEvents(getCalendarEvents())
+    '''
+    # Deixa apenas os eventos
+    eventos = eventos["events"]
+
+    # Verifica se não é uma lista vazia
+    if eventos == []:
+        log("erro", "Lista de reuniões vazia")
+
+    # Se não, segue o fluxo
+    else:
+        log("sucesso", f"Encontradas {len(eventos)} reuniões")
+
+formatEvents(getCalendarEvents())
 
 
 
-
-# 
-# 
-# 
-# rom sheets import adicionarAgendamento
+# from sheets import adicionarAgendamento
 # 
 # eventos = getCalendarEvents()
 # 
-# or evento in eventos:
-#    dados = [
-#        evento.get("id", ""),
-#        evento.get("address", ""),
-#        evento.get("title", ""),
-#        evento.get("calendarId", ""),
-#        evento.get("locationId", ""),
-#        evento.get("contactId", ""),
-#        evento.get("groupId", ""),
-#        evento.get("appointmentStatus", ""),
-#        evento.get("assignedUserId", ""),
-#        evento.get("startTime", ""),
-#        evento.get("endTime", ""),
-#        evento.get("dateAdded", ""),
-#        evento.get("dateUpdated", ""),
-#        evento.get("createdBy", {}).get("userId", ""),
-#        evento.get("opportunityId", "")
+# for evento in eventos:
+#     dados = [
+#         evento.get("id", ""),
+#         evento.get("address", ""),
+#         evento.get("title", ""),
+#         evento.get("calendarId", ""),
+#         evento.get("locationId", ""),
+#         evento.get("contactId", ""),
+#         evento.get("groupId", ""),
+#         evento.get("appointmentStatus", ""),
+#         evento.get("assignedUserId", ""),
+#         evento.get("startTime", ""),
+#         evento.get("endTime", ""),
+#         evento.get("dateAdded", ""),
+#         evento.get("dateUpdated", ""),
+#         evento.get("createdBy", {}).get("userId", ""),
+#         evento.get("opportunityId", "")
 #    ]   
 # 
 #    #adicionarAgendamento(dados)
