@@ -157,16 +157,29 @@ def atualizarAgendamentos(agendamentos: list = [[]]):
                             # Se não estiver em nenhum lugar, será adicionado
                             reunioesAdicionar.append(agendamento)
 
-            log(obs=f"Serão atualizadas {len(reunioesAtualizar)} reuniões")
-            log(obs=f"Serão adicionadas {len(reunioesAdicionar)} reuniões")
             log(obs=f"Não serão modificadas {len(agendamentos) - len(reunioesAtualizar) - len(reunioesAdicionar)} reuniões")
 
-            
+            log(obs=f"Serão adicionadas {len(reunioesAdicionar)} reuniões")
+
             # Adicionar reuniões
             tabelaAgendamentos.append_rows(reunioesAdicionar)
             log("sucesso", "Reuniões adicionadas!")
 
+            log(obs=f"Serão atualizadas {len(reunioesAtualizar)} reuniões")
 
+            # Procura as linhas e atualiza os valores
+            for reuniaoAAtualizar in reunioesAtualizar:
+                # Procura a linha com o agendamento
+                linhaAAtualizar = tabelaAgendamentos.find(reuniaoAAtualizar[0], in_column=1)
+                row_number = linhaAAtualizar.row
+
+                # Define o espaço que quer atualizar
+                range_linha = f"A{row_number}:O{row_number}"
+                
+                # Atualiza a linha
+                tabelaAgendamentos.update(values=reuniaoAAtualizar, range_name=range_linha)
+
+            log("sucesso", "Reuniões atualizadas!")
 
         except Exception as e:
             log("errro", f"Ocorreu um erro: {e}")
