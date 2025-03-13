@@ -56,6 +56,145 @@ def get_worksheet():
 
 # --------- Fim Autenticação do Google -------------
 
+# ------------- Autenticação GHL -------------------
+
+def authGHL():
+    '''
+    Fazer a autenticação no GHL
+
+    Essa função tenta fazer uma requisição via API, se não conseguir gera um novo token
+    '''
+    
+    from dotenv import load_dotenv, set_key
+    
+    # Carrega as variáveis de Ambiente
+    clientId = os.getenv("CLIENT_ID")
+    clientSecret = os.getenv("CLIENT_SECRET")
+    authUrl = os.getenv("AUTH_URL")
+    tokenUrl = os.getenv("TOKEN_URL")
+    redirectUrl = os.getenv("REDIRECT_URL")
+    refreshToken = os.getenv("REFRESH_GHL_TOKEN")
+
+    try:
+        # Tenta uma requisição
+        url = "https://services.leadconnectorhq.com/calendars/"
+
+        params = {
+            "locationId": locationId
+        }
+
+        header = {
+            "Authorization": f"Bearer {authorization}",
+            "Version": "2021-04-15"
+        }            
+
+        r = requests.get(url=url, params=params, headers=header)
+        
+        # Se a resposta tiver um status code de erro, raise_for_status() vai disparar uma exceção HTTPError
+        r.raise_for_status()
+
+        log("sucesso", "Token GHL Validado")
+
+    except requests.exceptions.HTTPError as http_err:
+        # Se a requisição não tiver funcionado
+        log("erro", "Tentando Reconectar com o GHL")
+
+        # Tenta reconectar com o Token Temporário:
+        try:
+             # Pega o Token
+            body = {
+                "client_id": clientId,
+                "client_secret": clientSecret,
+                "grant_type": "refresh_token",
+                "refresh_token": refreshToken
+            }
+
+            token = requests.post("https://services.leadconnectorhq.com/oauth/token",data=body )
+
+            # Verifica se deu erro
+            token.raise_for_status()
+
+            # Extrai o Token de Acesso da resposta
+            token = token.json()
+            access_token = token['access_token']
+            refreshToken = token['refresh_token']
+
+            # Define a variável de Ambiente com o Token
+            log("sucesso",f"Conexão com o GHL estabelecida!")
+            set_key(".env", "REFRESH_GHL_TOKEN", refreshToken)
+            set_key(".env", "AUTHORIZATION", access_token)
+
+        except:
+            import urllib.parse
+            from requests_oauthlib import OAuth2Session
+
+            log("erro", "Não foi possível conecar com o GHL, necessário nova conexão")
+
+            # Define os Escopos:
+            scope = [
+                "opportunities.readonly",
+                "contacts.readonly",
+                "locations.readonly",
+                "calendars/events.write",
+                "calendars/events.readonly",
+                "calendars.write",
+                "calendars.readonly"
+            ]
+
+            # Cria a sessão OAuth
+            oauth = OAuth2Session(clientId, redirect_uri=redirectUrl, scope=scope)
+
+            # 1) Obter a URL de autorização e redirecionar o usuário
+            authorization_url, state = oauth.authorization_url(authUrl)
+            print("Acesse a URL para autorizar a aplicação:")
+            print(authorization_url.replace("+","%20"))
+
+            # 2) Após o usuário autorizar, ele será redirecionado para o redirect_uri.
+            #    Copie a URL de redirecionamento (que contém o 'code') e cole aqui.
+
+            log("erro", "Verifique o terminal do Python")
+
+            redirect_response = input("Cole aqui a URL completa de redirecionamento:\n")
+
+
+            # Faz o parse da URL
+            parsed_url = urllib.parse.urlparse(redirect_response)
+
+            # Extrai os parâmetros de query em forma de dicionário
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+
+            # Pega o valor de 'code'
+            auth_code = query_params.get("code", [None])[0]
+
+            if not auth_code:
+                print("Não foi possível encontrar o parâmetro 'code' na URL!")
+            else:
+                print("Code obtido:", auth_code)
+
+                body = {
+                    "client_id": clientId,
+                    "client_secret": clientSecret,
+                    "grant_type": "authorization_code",
+                    "code": auth_code
+                }
+
+                token = requests.post("https://services.leadconnectorhq.com/oauth/token",data=body )
+
+                # Extrai o Token de Acesso da resposta
+                token = token.json()
+                access_token = token['access_token']
+                refreshToken = token['refresh_token']
+
+                # Define a variável de Ambiente com o Token
+                set_key(".env", "REFRESH_GHL_TOKEN", refreshToken)
+                set_key(".env", "AUTHORIZATION", access_token)
+
+                log("sucesso", "Nova conexão estabelecida, conferindo novamente")
+
+                authGHL()
+
+
+
 
 def log(status: str = "regular", obs: str = "Sem observações"):
     '''
@@ -97,7 +236,7 @@ def log(status: str = "regular", obs: str = "Sem observações"):
         print("Erro ao inicializar a planilha de log:", e)
         return
     
-
+authGHL()
 
 def atualizarAgendamentos(agendamentos: list = [[]]):
     '''
@@ -412,4 +551,4 @@ def formatEvents(eventos:list = []):
         atualizarAgendamentos(dadosEventos)
         
 
-formatEvents(getCalendarEvents())
+#formatEvents(getCalendarEvents())

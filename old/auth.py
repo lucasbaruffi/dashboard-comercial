@@ -14,6 +14,7 @@ clientSecret = os.getenv("CLIENT_SECRET")
 authUrl = os.getenv("AUTH_URL")
 tokenUrl = os.getenv("TOKEN_URL")
 redirectUrl = os.getenv("REDIRECT_URL")
+refreshToken = os.getenv("REFRESH_GHL_TOKEN")
 
 # Define os Escopos:
 scope = [
@@ -66,7 +67,10 @@ token = requests.post("https://services.leadconnectorhq.com/oauth/token",data=bo
 
 # Extrai o Token de Acesso da resposta
 token = token.json()
-token = token['access_token']
+access_token = token['access_token']
+refreshToken = token['refresh_token']
 
 # Define a variável de Ambiente com o Token
-set_key(".env", "AUTHORIZATION", token)
+print(f"Token Obtido: {access_token}")
+set_key(".env", "REFRESH_GHL_TOKEN", refreshToken)
+set_key(".env", "AUTHORIZATION", access_token)

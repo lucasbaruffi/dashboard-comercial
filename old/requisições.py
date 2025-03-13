@@ -37,7 +37,7 @@ def getCalendars():
         print(r)
 
 def getCalendarEvents():
-    from tratamento import dataEpoch
+    from old.tratamento import dataEpoch
     # start = str(input("Qual a data inicial? (DD/MM/AAAA HH:mm) "))
     # end = str(input("Qual a data final? (DD/MM/AAAA HH:mm) "))
 # 
