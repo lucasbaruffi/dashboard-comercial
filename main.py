@@ -16,6 +16,33 @@ header = {
 }
 
 
+def log(status: str = "regular", obs: str = None):
+    '''
+    O Objetivo dessa função é ter um log de tudo o que está acontecendo.
+
+    Em vez de utilizar o "print()" para mostrar, usarei isso para salvar os logs em uma planílha.
+    Como não ficaremos com o cógio aberto, é válido ter um log de registros.
+    Ele pegará da data atual para salvar na planilha, não sendo necessário passar esse parâmetro.
+
+    Entrada:
+    -
+        status (str): É bom padronizar entre "erro" e "sucesso", mas o campo é livre.
+        obs (str): Campo de string livre para deixar o que aconteceu.
+
+    Retorno:
+    -
+        O código não retorna nada, apenas salva o registro na plailha.
+
+    ---
+
+    Exemplo:
+    >>> log("sucesso", "Foram encontradas 75 reuniões")
+    '''
+
+
+
+
+
 def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
     '''
     Retorna as datas em timestamp (formato aceito pelo GHL)
@@ -26,11 +53,13 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
     Se nenhum parâmetro for informado, ele pegará 30 dias antes e 15 dias depois
 
     Entrada:
+    -
        diasAntes (int): quantos dias antes do atual quer transformat em timestamp.
        diasDepois (int): quantos dias depois do atual quer transformat em timestamp.
    
        
     Saída:
+    -
         Sairá uma tupla com o tempo anterior e posterior, sucessivamente
 
     Exemplo:
@@ -92,14 +121,9 @@ def getCalendarEvents():
         # Transforma a resposta em Json e retorna
         r = r.json()     
 
-        print(r)
-
-
-
+        # Retorna a lista
         return r
     
-
-
 
     except requests.exceptions.HTTPError as http_err:
         # Exemplo: tratamento específico para token expirado (status 401)
@@ -113,8 +137,6 @@ def getCalendarEvents():
         print(f"Ocorreu um erro inesperado: {e}")
 
 
-
-getCalendarEvents()
 
 
 # 
