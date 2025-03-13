@@ -182,9 +182,15 @@ def getOpportunity(contactId: int = None):
 
             # Transforma a resposta em Json e retorna
             r = r.json()     
+            
+            # Pega apenas alista de oportunidades
+            oportunidades = r["opportunities"]
 
-            log("sucesso")
+            # Pega a útlima  oportunidade da lista - a mais antiga no CRM
+            oportunidade = oportunidades[len(oportunidades)-1]
 
+
+            print(oportunidade)
 
 
         except requests.exceptions.HTTPError as http_err:
@@ -198,7 +204,7 @@ def getOpportunity(contactId: int = None):
         except Exception as e:
             log("erro",f"Ocorreu um erro inesperado: {e}")
 
-getOpportunity("LDD0wZlZyICh6UO8qb8U")
+getOpportunity("KQBEJsZ3WvVNUIysF6RW")
 
 def getCalendarEvents():
     try:
