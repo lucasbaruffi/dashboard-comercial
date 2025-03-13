@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, time, timedelta
 
 googleRequests = 0
 
@@ -193,6 +193,7 @@ def authGHL():
 
                 authGHL()
 
+# ------------- Fim Autenticação GHL -------------------
 
 
 
@@ -236,8 +237,6 @@ def log(status: str = "regular", obs: str = "Sem observações"):
         print("Erro ao inicializar a planilha de log:", e)
         return
     
-authGHL()
-
 def atualizarAgendamentos(agendamentos: list = [[]]):
     '''
     Adiciona ou atualiza agendamentos na planilha
@@ -316,7 +315,7 @@ def atualizarAgendamentos(agendamentos: list = [[]]):
                 range_linha = f"A{row_number}:O{row_number}"
                 
                 # Atualiza a linha
-                tabelaAgendamentos.update(values=reuniaoAAtualizar, range_name=range_linha)
+                tabelaAgendamentos.update(values=[reuniaoAAtualizar], range_name=range_linha)
 
             log("sucesso", "Reuniões atualizadas!")
 
@@ -410,6 +409,8 @@ def getOpportunity(contactId: int = None):
             
             # Pega apenas alista de oportunidades
             oportunidades = r["opportunities"]
+
+
 
             # Verifica se tem oportunidades
             if len(oportunidades) == 0:
@@ -551,4 +552,19 @@ def formatEvents(eventos:list = []):
         atualizarAgendamentos(dadosEventos)
         
 
-#formatEvents(getCalendarEvents())
+def main():
+    inicio = datetime.now()
+    log("sucesso", f"Aplicação iniciada às {inicio.strftime("%H:%M:%S")}")
+
+    authGHL()
+    formatEvents(getCalendarEvents())
+
+    fim = datetime.now()
+    duracao = fim - inicio
+    
+    log("sucesso", "Aplicação finalizada com êxito")
+    log(obs= f"Duração da execução: {duracao}")
+
+
+if __name__ == "__main__":
+    main()
