@@ -220,23 +220,13 @@ def log(status: str = "regular", obs: str = "Sem observações"):
     >>> log("sucesso", "Foram encontradas 75 reuniões")
     '''
     
-    try:
-        # Puxa a planilha:
-        planilha = get_worksheet()
+    from datetime import datetime
+    diaAtual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    with open("log.txt", "a") as arquivo:
+        txt = f"{diaAtual} | {status} | {obs}\n"
+        arquivo.write(txt)   
 
-        # Abre a tabela de logs
-        tabelaLogs = planilha.worksheet("logs")
-        # Define o dia de hoje e formata
-        diaAtual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        # Define a nova linha
-        novaLinha = [diaAtual, status, obs]
-        # Adiciona a linha
-        tabelaLogs.append_row(novaLinha)
 
-    except Exception as e:
-        print("Erro ao inicializar a planilha de log:", e)
-        return
-    
 def atualizarAgendamentos(agendamentos: list = [[]]):
     '''
     Adiciona ou atualiza agendamentos na planilha
@@ -552,18 +542,18 @@ def formatEvents(eventos:list = []):
         
 
 def main():
-#     inicio = datetime.now()
-#     log("sucesso", f"Aplicação iniciada às {inicio.strftime("%H:%M:%S")}")
-# 
-#     authGHL()
-#     formatEvents(getCalendarEvents())
-# 
-#     fim = datetime.now()
-#     duracao = fim - inicio
-#     
-#     log("sucesso", "Aplicação finalizada com êxito")
-#     log(obs= f"Duração da execução: {duracao}")
-    getOpportunities()
+    inicio = datetime.now()
+    log("sucesso", f"Aplicação iniciada às {inicio.strftime("%H:%M:%S")}")
+
+    authGHL()
+    formatEvents(getCalendarEvents())
+
+    fim = datetime.now()
+    duracao = fim - inicio
+    
+    log("sucesso", "Aplicação finalizada com êxito")
+    log(obs= f"Duração da execução: {duracao}")
+  #getOpportunities()
 
 
 if __name__ == "__main__":
