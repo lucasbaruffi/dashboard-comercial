@@ -134,7 +134,6 @@ def formatOpportunities(lista:list = []):
         print(formatedOp)
         print("--------------------------")
 
-   
 
 def getOpportunities():
     '''
@@ -151,7 +150,7 @@ def getOpportunities():
         ops = []
 
         # Define a data do início da consulta
-        initialDate = diasAntes(1)
+        initialDate = diasAntes()
 
         # Define os parâmetros da consulta
         url = f"https://services.leadconnectorhq.com/opportunities/search?location_id={locationId}&limit=100&date={initialDate}"
@@ -194,4 +193,6 @@ def getOpportunities():
     except Exception as e:
         log("erro",f"Ocorreu um erro inesperado: {e}")
 
-getOpportunities()
+
+if __name__ == "__main__":
+    getOpportunities()
