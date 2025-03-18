@@ -26,6 +26,91 @@ def diasAntes(n:int = None):
     else:
         return("01-01-2023")
 
+def atualizarOportunidades(ops: list = [[]]):
+    '''
+    Adiciona ou atualiza Oportunidades na planilha
+
+    Recebe uma lista de oportunidades já formatados (do formatOpportunities), verifica se já existe na planilha.
+    
+    Se não existe, adiciona uma nova linha
+    
+    Se existe, verifica se tem diferença dos dados
+    
+    Se tiver, atualiza.
+    
+    Senão tiver diferença, ignora
+    '''
+    # Verifica se possui reuniões
+    if ops == []:
+        log('erro', 'Nenhuma reunião para atualizar.')
+
+    else:
+        try:
+            # Puxa a planilha
+            planilha = get_worksheet()
+
+            # Abre a tavela de agendamentos 
+            tabelaDeals = planilha.worksheet("deals")
+
+            # Salva as reuniões agendadas em uma lista
+            opsSalvas = tabelaDeals.get_all_values()
+            log("sucesso", "Localizados todas as oportunidades salvas na planilha")
+            log(obs="Separando as oportunidades...")
+
+            opsAtualizar = []
+            opsAdicionar = []
+
+            # Pra cada oportunidade
+            for op in ops:
+                id = op[0]
+
+                # Procura na lista de reuniões salvas
+                for cont, opSalva in enumerate(opsSalvas):
+
+                    # Se o Id de alguma for igual
+                    if opSalva[0] == id:
+
+                        # Se estiver igual
+                        if opSalva == op:
+                            break
+
+                        else:
+                            # Adiciona à lista dos que precisam atualizar
+                            opsAtualizar.append(op)
+                            break
+                    else:
+                        # Não é igual é é o ultimo da lista que foi procurado
+                        if cont == len(opsSalvas)-1:
+                            # Se não estiver em nenhum lugar, será adicionado
+                            opsAdicionar.append(op)
+
+            log(obs=f"Não serão modificadas {len(ops) - len(opsAtualizar) - len(opsAdicionar)} oportunidades")
+
+            log(obs=f"Serão adicionadas {len(opsAdicionar)} oportunidades")
+
+            # Adicionar reuniões
+            tabelaDeals.append_rows(opsAdicionar)
+            log("sucesso", "Oportunidades adicionadas!")
+
+            log(obs=f"Serão atualizadas {len(opsAtualizar)} oportunidades")
+
+            # Procura as linhas e atualiza os valores
+            for opAAtualizar in opsAtualizar:
+                # Procura a linha com o op
+                linhaAAtualizar = tabelaDeals.find(opAAtualizar[0], in_column=1)
+                row_number = linhaAAtualizar.row
+
+                # Define o espaço que quer atualizar
+                range_linha = f"A{row_number}:AL{row_number}"
+                
+                # Atualiza a linha
+                tabelaDeals.update(values=[opAAtualizar], range_name=range_linha)
+
+            log("sucesso", "Oportunidades atualizadas!")
+
+        except Exception as e:
+            log("errro", f"Ocorreu um erro: {e}")
+
 
 def formatOpportunities(lista:list = []):
     '''
