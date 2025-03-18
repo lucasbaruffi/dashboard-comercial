@@ -34,11 +34,35 @@ def formatOpportunities(lista:list = []):
 
     for op in lista:
         
+        for cf in op["customFiels"]:
+            if cf["id"] == '5xpVHjUBibgmZVvMk5r4':
+                tamanhoEmpresa = cf["fieldValueStrig"]
+
+            elif cf["id"] == 'uWWUdvkMa3AApDCZfIWk':
+                site = cf["fieldValueStrig"]
+
+            elif cf["id"] == 'BtPyM0PeQdf2WAH8Uq3E':
+                site = cf["fieldValueStrig"]
         formatedOp = [
         op.get("id", ""),
         op.get("name", ""),
         op.get("monetaryValue"),
-        
+        op.get("pipelineId", ""),
+        op.get("pipelineStageId", ""),
+        op.get("pipelineStageUId", ""),
+        op.get("assignedTo", ""),
+        op.get("status", ""),
+        op.get("source", ""),
+        op.get("lastStatusChangeAt", ""),
+        op.get("lastStageChangeAt", ""),
+        op.get("createdAt", ""),
+        op.get("updatedAt", ""),
+        op.get("contactId", ""),
+        op.get("locationId", ""),
+        op.get("customFiels", {}.get()),
+        op.get("", ""),
+        op.get("", ""),
+        op.get("", ""),
         ]
         print(op)
 
