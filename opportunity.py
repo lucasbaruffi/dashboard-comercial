@@ -1,4 +1,4 @@
-from main import log, locationId, authorization, requests
+from main import log, locationId, authorization, requests, get_worksheet
 
 def diasAntes(n:int = None):
     '''
@@ -31,108 +31,130 @@ def formatOpportunities(lista:list = []):
     '''
     Recebe uma lista de oportunidades e formata para salvar na planilha
     '''
-
+    opsFormated = []
     for op in lista:
         formatedOp = []
+        custom_fields = {
+            'closer': '',
+            'sdr': '',
+            'tipoVenda': '',
+            'isOp': '',
+            'dataGanho': '',
+            'segmento': '',
+            'funcionarios': '',
+            'faturamento': '',
+            'site': '',
+            'desafio': '',
+            'urlOrigem': '',
+            'origem': '',
+            'cargo': '',
+            'emailCorporativo': '',
+            'cidade': '',
+            'score': '',
+            'timeVendas': '',
+            'clientesAtivos': ''
+        }
+
         # Define os campos personalizados
         for cf in op["customFields"]:
             if cf["id"] == '8g08EFI9Qu4DlpVUxkew':
-                closer = cf.get("fieldValueString", "")
+                custom_fields['closer'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == '8Lc3bC17M065Edcob4dt':
-                sdr = cf.get("fieldValueString", "")
+                custom_fields['sdr'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'hnAbrYxtSbJSvmzoAHpd':
-                tipoVenda = cf.get("fieldValueString", "")
+                custom_fields['tipoVenda'] = cf.get("fieldValueString", "")
             
             elif cf["id"] == 'XedT4Yg1IuEU1RSVoFJQ':
-                isOp = cf.get("fieldValueString", "")
+                custom_fields['isOp'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'gf9opjOGBMQft8FNnq5P':
-                dataGanho = cf.get("fieldValueString", "") # Está em timestamp
+                custom_fields['dataGanho'] = cf.get("fieldValueString", "") # Está em timestamp
 
             elif cf["id"] == 'xwmET46ovjpsN2oPTHGy':
-                segmento = cf.get("fieldValueString", "") 
+                custom_fields['segmento'] = cf.get("fieldValueString", "") 
 
             elif cf["id"] == '5xpVHjUBibgmZVvMk5r4':
-                funcionarios = cf.get("fieldValueString", "")
+                custom_fields['funcionarios'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'mLJtYWsRLhd5r4K24mLk':
-                faturamento = cf.get("fieldValueString", "")
+                custom_fields['faturamento'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'EUaHadhsk53lpgWVUWn5':
-                site = cf.get("fieldValueString", "")
+                custom_fields['site'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'OyRGgjyylLx04EZw3gcC':
-                desafio = cf.get("fieldValueString", "")
+                custom_fields['desafio'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'uWWUdvkMa3AApDCZfIWk':
-                urlOrigem = cf.get("fieldValueString", "")
+                custom_fields['urlOrigem'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'BtPyM0PeQdf2WAH8Uq3E':
-                origem = cf.get("fieldValueString", "")
+                custom_fields['origem'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'V2TNe5O2rB6VLYYazSI6':
-                cargo = cf.get("fieldValueString", "")
+                custom_fields['cargo'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'YDEL68h3nFgJbfZj1mZV':
-                emailCorporativo = cf.get("fieldValueString", "")
+                custom_fields['emailCorporativo'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'Lb7O90ZncOMJRSWbSIMA':
-                cidade = cf.get("fieldValueString", "")
+                custom_fields['cidade'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'OKMKNuJgWNoD3R7Lqw4r':
-                score = cf.get("fieldValueString", "")
+                custom_fields['score'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'KOPoVWrK61t4QRLprdeG':
-                timeVendas = cf.get("fieldValueString", "")
+                custom_fields['timeVendas'] = cf.get("fieldValueString", "")
 
             elif cf["id"] == 'Q5uphNMlU3W0F3lNhIIV':
-                clientesAtivos = cf.get("fieldValueString", "")
+                custom_fields['clientesAtivos'] = cf.get("fieldValueString", "")
 
         # Formata os Dados em uma lista
         formatedOp = [
-        op.get("id", ""),
-        op.get("name", ""),
-        op.get("monetaryValue"),
-        op.get("pipelineId", ""),
-        op.get("pipelineStageId", ""),
-        op.get("pipelineStageUId", ""),
-        op.get("assignedTo", ""),
-        op.get("status", ""),
-        op.get("source", ""),
-        op.get("lastStatusChangeAt", ""),
-        op.get("lastStageChangeAt", ""),
-        op.get("createdAt", ""),
-        op.get("updatedAt", ""),
-        op.get("contactId", ""),
-        op.get("locationId", ""),
-        op.get("lostReasonId", ""),
-        op.get("contact", {}).get("name", ""),
-        op.get("contact", {}).get("email", ""),
-        op.get("contact", {}).get("phone", ""),
-        globals().get('closer', ""),
-        globals().get('sdr', ""),
-        globals().get('tipoVenda', ""),
-        globals().get('isOp', ""),
-        globals().get('dataGanho', ""),
-        globals().get('segmento', ""),
-        globals().get('funcionarios', ""),
-        globals().get('faturamento', ""),
-        globals().get('site', ""),
-        globals().get('desafio', ""),
-        globals().get('urlOrigem', ""),
-        globals().get('origem', ""),
-        globals().get('cargo', ""),
-        globals().get('emailCorporativo', ""),
-        globals().get('cidade', ""),
-        globals().get('score', ""),
-        globals().get('timeVendas', ""),
-        globals().get('clientesAtivos', ""),
+            op.get("id", ""),
+            op.get("name", ""),
+            op.get("monetaryValue"),
+            op.get("pipelineId", ""),
+            op.get("pipelineStageId", ""),
+            op.get("pipelineStageUId", ""),
+            op.get("assignedTo", ""),
+            op.get("status", ""),
+            op.get("source", ""),
+            op.get("lastStatusChangeAt", ""),
+            op.get("lastStageChangeAt", ""),
+            op.get("createdAt", ""),
+            op.get("updatedAt", ""),
+            op.get("contactId", ""),
+            op.get("locationId", ""),
+            op.get("lostReasonId", ""),
+            op.get("contact", {}).get("name", ""),
+            op.get("contact", {}).get("companyName", ""),
+            op.get("contact", {}).get("email", ""),
+            op.get("contact", {}).get("phone", ""),
+            custom_fields['closer'],
+            custom_fields['sdr'],
+            custom_fields['tipoVenda'],
+            custom_fields['isOp'],
+            custom_fields['dataGanho'],
+            custom_fields['segmento'],
+            custom_fields['funcionarios'],
+            custom_fields['faturamento'],
+            custom_fields['site'],
+            custom_fields['desafio'],
+            custom_fields['urlOrigem'],
+            custom_fields['origem'],
+            custom_fields['cargo'],
+            custom_fields['emailCorporativo'],
+            custom_fields['cidade'],
+            custom_fields['score'],
+            custom_fields['timeVendas'],
+            custom_fields['clientesAtivos'],
         ]
+        opsFormated.append(formatedOp)
 
-        print(formatedOp)
-        print("--------------------------")
+    atualizarOportunidades(opsFormated)
 
 
 def getOpportunities():
@@ -177,6 +199,7 @@ def getOpportunities():
             # Redefine a URL para a próxima página
             url = r["meta"]["nextPageUrl"]
 
+            
         # Envia a lista para ser formatada
         formatOpportunities(ops)
 
