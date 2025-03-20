@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 import os
 import requests
 import json
@@ -51,6 +51,42 @@ def refreshAuth():
     token = requests.post(url, data=body)
 
     token.raise_for_status()
+
+def getTokens(code):
+    '''
+    Recebe o Code e retorna o Token e o Refresh Token
+    Salva ambos nas variáveis de ambiente.
+    '''
+    try:
+        url = tokenUrl
+        body = {
+            "client_id": clientId,
+            "client_secret": clientSecret,
+            "grant_type": "authorization_code",
+            "code": code
+        }
+
+        tokens = requests.post(url, data=body)
+        tokens.raise_for_status()
+        tokens = tokens.json()
+
+        accessToken = tokens['access_token']
+        refreshToken = tokens['refresh_token']
+
+        # Define o caminho absoluto para o arquivo .env
+        env_path = str(Path(__file__).parent / '.env')
+        
+        print(f"Salvando tokens no arquivo: {env_path}")
+
+        # Atualiza os tokens usando set_key
+        set_key(env_path, "GHL_AUTHORIZATION", accessToken)
+        set_key(env_path, "GHL_REFRESH_TOKEN", refreshToken)
+            
+        print("Tokens salvos com sucesso no .env")
+        
+    except Exception as e:
+        print('Erro ao obter os Tokens:', e)
+        return
 
 
 def read_code_from_env():
@@ -110,7 +146,7 @@ def auth():
     try:
         # Aguarda o código ser atualizado no .env
         code = wait_for_code()
-        print(f"Autorização concluída com sucesso!")
+        print(f"Code Salvo com sucesso!")
         return code
     except TimeoutError as e:
         print(f"Erro: {e}")
@@ -136,7 +172,15 @@ def ghlAuthorization():
     except Exception as e:
         print('Erro ao autenticar com o Refresh Token:', e)
         print('Tentando Reconectar...')
+        code = auth()
 
-        auth()
+        try:
+            # Tenta autenticar com o Code
+            getTokens(code)
+            print('Autenticado com o Code')
+
+        except Exception as e:
+            print('Erro ao autenticar com o Code:', e)
+            print('Tente novamente')
 
 ghlAuthorization()
