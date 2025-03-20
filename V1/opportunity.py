@@ -1,4 +1,4 @@
-from main import log, locationId, authorization, requests, get_worksheet
+from V1.main import log, locationId, authorization, requests, get_worksheet
 
 def diasAntes(n:int = None):
     '''

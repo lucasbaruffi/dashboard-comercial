@@ -7,4 +7,6 @@ A ideia aqui é puxar os dados do GoHighLevel via API, salvar em um banco de dad
 
 ---
 
-Estou dividindo entre V1, V2 pois não são mais modificações, a cada versão quero fzer o que tenho de melhor até agora.
+Esta foi a primeira tentativa, em que apenas validei que seria possívem me conectar à API.
+
+O Main.py funciona, mas está bem zuado para fazer as credenciais...

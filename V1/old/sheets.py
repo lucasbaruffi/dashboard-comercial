@@ -3,7 +3,7 @@ def adicionarAgendamento(data=list):
     from google.oauth2.service_account import Credentials
     import os
     from dotenv import load_dotenv
-    from main import log
+    from V1.main import log
     from time import sleep
 
     # Carrega as variáveis de Ambiente
