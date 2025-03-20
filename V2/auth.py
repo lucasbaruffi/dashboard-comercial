@@ -1,12 +1,15 @@
 from dotenv import load_dotenv, set_key
 import os
 import requests
-import json
 from werkzeug.serving import make_server
 import threading
 import time
 from pathlib import Path
+from logging_config import configurar_logging
 
+logger = configurar_logging()
+
+logger.info("Aplicação Iniciada")
 
 # Carrega as variáveis de ambiente
 load_dotenv()
@@ -21,6 +24,9 @@ locationId = os.getenv('GHL_LOCATION_ID')
 calendarId = os.getenv('GHL_CALENDAR_ID')
 authToken = os.getenv('GHL_AUTHORIZATION')
 refreshToken = os.getenv('GHL_REFRESH_TOKEN')
+
+logger.info("Variáveis de ambiente carregadas")
+
 
 # Isto serve para deixar um servidor online para receber o código de autorização
 class FlaskServerThread(threading.Thread):
@@ -76,16 +82,16 @@ def getTokens(code):
         # Define o caminho absoluto para o arquivo .env
         env_path = str(Path(__file__).parent / '.env')
         
-        print(f"Salvando tokens no arquivo: {env_path}")
+        logger.info(f"Salvando tokens no arquivo: {env_path}")
 
         # Atualiza os tokens usando set_key
         set_key(env_path, "GHL_AUTHORIZATION", accessToken)
         set_key(env_path, "GHL_REFRESH_TOKEN", refreshToken)
             
-        print("Tokens salvos com sucesso no .env")
+        logger.info("Tokens salvos com sucesso no .env")
         
     except Exception as e:
-        print('Erro ao obter os Tokens:', e)
+        logger.error('Erro ao obter os Tokens:', e)
         return
 
 
@@ -112,7 +118,7 @@ def wait_for_code(timeout=180):
         
         # Se o código mudou, retorna o novo código
         if current_code and current_code != initial_code:
-            print("Código de autorização recebido!")
+            logger.info("Código de autorização recebido!")
             return current_code
             
         # Espera 1 segundo antes de verificar novamente
@@ -140,8 +146,8 @@ def auth():
 
     # 1) Obter a URL de autorização e redirecionar o usuário
     authorization_url, state = oauth.authorization_url(authUrl)
-    print("Acesse a URL para autorizar a aplicação:")
-    print(authorization_url.replace("+","%20"))
+    logger.info("Acesse a URL para autorizar a aplicação:")
+    logger.info(authorization_url.replace("+","%20"))
 
     try:
         # Aguarda o código ser atualizado no .env
@@ -167,22 +173,21 @@ def ghlAuthorization():
     try:    
         # Tenta autenticar com o Refresh Token
         refreshAuth()
-        print('Autenticado com o Refresh Token')
+        logger.info('Autenticado com o Refresh Token')
+        logger.info("Conexão Estabelecida com Sucesso!")
 
     except Exception as e:
-        print('Erro ao autenticar com o Refresh Token:', e)
-        print('Tentando Reconectar...')
+        logger.error('Erro ao autenticar com o Refresh Token:', e)
+        logger.error('Tentando Reconectar...')
         code = auth()
 
         try:
             # Tenta autenticar com o Code
             getTokens(code)
-            print('Autenticado com o Code')
-
+            logger.info('Autenticado com o Code')
+            logger.info("Conexão Estabelecida com Sucesso!")
         except Exception as e:
-            print('Erro ao autenticar com o Code:', e)
-            print('Tente novamente')
-
+            logger.error('Erro ao autenticar com o Code:', e)
 
 if __name__ == "__main__":
     ghlAuthorization()
