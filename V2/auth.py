@@ -183,4 +183,6 @@ def ghlAuthorization():
             print('Erro ao autenticar com o Code:', e)
             print('Tente novamente')
 
-ghlAuthorization()
+
+if __name__ == "__main__":
+    ghlAuthorization()
