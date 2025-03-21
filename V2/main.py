@@ -1,5 +1,5 @@
 from auth import ghlAuthorization
-from meetings import pegarSalvarReuniões
+from V2.meetings.meetings import pegarSalvarReuniões
 
 # Aplicativo Principal
 if __name__ == "__main__":
