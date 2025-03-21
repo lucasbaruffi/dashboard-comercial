@@ -47,6 +47,10 @@ class FlaskServerThread(threading.Thread):
 def refreshAuth():
     url = tokenUrl
     
+    header = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
     body = {
         "client_id": clientId,
         "client_secret": clientSecret,
@@ -54,9 +58,24 @@ def refreshAuth():
         "refresh_token": refreshToken
     }
 
-    token = requests.post(url, data=body)
+    tokens = requests.post(url,headers=header , data=body)
 
-    token.raise_for_status()
+    tokens.raise_for_status()
+
+    tokens = tokens.json()
+
+    accessToken = tokens['access_token']
+    newRefreshToken = tokens['refresh_token']
+
+    # Define o caminho absoluto para o arquivo .env
+    env_path = str(Path(__file__).parent / '.env')
+            
+    logger.info(f"Salvando tokens no arquivo: {env_path}")
+    # Atualiza os tokens usando set_key
+    set_key(env_path, "GHL_AUTHORIZATION", accessToken)
+    set_key(env_path, "GHL_REFRESH_TOKEN", newRefreshToken)
+
+    logger.info("Tokens salvos com sucesso no .env")
 
 def getTokens(code):
     '''
@@ -172,6 +191,7 @@ def ghlAuthorization():
     '''
     try:    
         # Tenta autenticar com o Refresh Token
+        logger.info('Tentando autenticar com o Refresh Token...')
         refreshAuth()
         logger.info('Autenticado com o Refresh Token')
         logger.info("Conexão Estabelecida com Sucesso!")
@@ -190,4 +210,5 @@ def ghlAuthorization():
             logger.error('Erro ao autenticar com o Code:', e)
 
 if __name__ == "__main__":
+    #refreshAuth()
     ghlAuthorization()
