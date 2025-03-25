@@ -58,23 +58,12 @@ def getMeetings():
         if len(r["events"]) == 0:
             logging.info("Nenhuma reunião encontrada")
             return None
-
-
-
-        # Carrega as informações da tabela
-        db_host = getenv("DB_HOST")
-        db_user = getenv("DB_USER")
-        db_pass = getenv("DB_PASS")
-
-
-        # # Valida credenciais do banco
-        # if not all([db_host, db_user, db_pass]):
-        #     logging.error("Credenciais do banco de dados faltando ou incompletas")
-        #     return None
+        
 
         # Usa a conexão já estabelecida
         connection = Database.get_connection()
         cursor = connection.cursor()
+
 
         # Para cada Evento coletado:
         for evento in r["events"]:
@@ -134,14 +123,15 @@ def getMeetings():
 
             try:
                 cursor.execute(query, values)
-                logging.DEBUG(f"Reunião {evento.get('id')} inserida/atualizada com sucesso")
+                logging.DEBUG(f"Reunião {evento.get('id')} - {evento.get('title')} inserida/atualizada com sucesso")
             except mysql.connector.Error as e:
-                logging.error(f"Erro ao inserir reunião {evento.get('id')}: {str(e)}")
+                logging.error(f"Erro ao inserir reunião {evento.get('id')} - {evento.get('title')}: {str(e)}")
                 continue
 
         # Commit das alterações
         connection.commit()
         logging.info(f"{len(r['events'])} reuniões processadas")
+
 
     except Exception as e:
         logging.error(f"Ocorreu um erro: {e}")
@@ -150,5 +140,5 @@ def getMeetings():
 if __name__ == "__main__":
     # Inicializa conexão com banco
     Database.initialize()
-    
+
     getMeetings()

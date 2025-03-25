@@ -1,11 +1,15 @@
-from logging_config import logging, configurar_logging
+from logging_config import configurar_logging
 from auth import ghlAuthorization
 from meetings import getMeetings
 from database import Database
+from users import getUsers
+
+# Configura o logger (Obrigatório em todos os arquivos)
+logger = configurar_logging()
 
 if __name__ == "__main__":
     try:
-        logging.info("Aplicação Iniciada")
+        logger.info("Aplicação Iniciada")
         
         # Inicializa conexão com banco
         Database.initialize()
@@ -13,9 +17,14 @@ if __name__ == "__main__":
         # Faz a autenticação com o GHL
         ghlAuthorization()
         
+        # Busca usuários
+        getUsers()
+
         # Busca reuniões
         getMeetings()
+
+        logger.info("Programa finalizado com sucesso")
     
     except Exception as e:
-        logging.error(f"Erro crítico: {e}")
-        logging.critical("Programa finalizado com erro")
+        logger.error(f"Erro crítico: {e}")
+        logger.critical("Programa finalizado com erro")

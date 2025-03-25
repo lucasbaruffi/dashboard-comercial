@@ -47,7 +47,7 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
         epoch_x_dias_antes = int(dataDiasAntes.timestamp() * 1000)
         epoch_x_dias_depois = int(dataDiasDepois.timestamp() * 1000)
 
-        logging.info("Tempo convertido para timestamp")
+        logging.debug("Tempo convertido para timestamp")
         return epoch_x_dias_antes, epoch_x_dias_depois
 
     except Exception as erro:

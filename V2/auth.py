@@ -68,12 +68,12 @@ def refreshAuth():
     # Define o caminho absoluto para o arquivo .env
     env_path = str(Path(__file__).parent / '.env')
             
-    logger.info(f"Salvando tokens no arquivo: {env_path}")
+    logger.debug(f"Salvando tokens no arquivo: {env_path}")
     # Atualiza os tokens usando set_key
     set_key(env_path, "GHL_AUTHORIZATION", accessToken)
     set_key(env_path, "GHL_REFRESH_TOKEN", newRefreshToken)
 
-    logger.info("Tokens salvos com sucesso no .env")
+    logger.debug("Tokens salvos com sucesso no .env")
 
 def getTokens(code):
     '''
@@ -99,13 +99,13 @@ def getTokens(code):
         # Define o caminho absoluto para o arquivo .env
         env_path = str(Path(__file__).parent / '.env')
         
-        logger.info(f"Salvando tokens no arquivo: {env_path}")
+        logger.debug(f"Salvando tokens no arquivo: {env_path}")
 
         # Atualiza os tokens usando set_key
         set_key(env_path, "GHL_AUTHORIZATION", accessToken)
         set_key(env_path, "GHL_REFRESH_TOKEN", refreshToken)
             
-        logger.info("Tokens salvos com sucesso no .env")
+        logger.debug("Tokens salvos com sucesso no .env")
         
     except Exception as e:
         logger.error('Erro ao obter os Tokens:', e)
@@ -135,7 +135,7 @@ def wait_for_code(timeout=180):
         
         # Se o código mudou, retorna o novo código
         if current_code and current_code != initial_code:
-            logger.info("Código de autorização recebido!")
+            logger.debug("Código de autorização recebido!")
             return current_code
             
         # Espera 1 segundo antes de verificar novamente
@@ -155,7 +155,8 @@ def auth():
         "calendars/events.readonly",
         "calendars.readonly",
         "locations.readonly",
-        "locations/customFields.readonly"
+        "locations/customFields.readonly",
+        "users.readonly"
     ]
 
     # Cria a sessão OAuth
