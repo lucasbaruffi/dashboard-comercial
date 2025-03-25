@@ -3,6 +3,7 @@ from auth import ghlAuthorization
 from meetings import getMeetings
 from database import Database
 from users import getUsers
+from calendars import getCalendars
 
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
@@ -19,6 +20,9 @@ if __name__ == "__main__":
         
         # Busca usuários
         getUsers()
+
+        # Busca calendários
+        getCalendars()
 
         # Busca reuniões
         getMeetings()

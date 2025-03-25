@@ -8,7 +8,7 @@ import mysql.connector
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
 
-def getUsers():
+def getCalendars():
     try:
 
         logger.info("Iniciando a busca de usuários")
@@ -20,7 +20,7 @@ def getUsers():
 
 
         # Requisição HTTP
-        url = "https://services.leadconnectorhq.com/users/"
+        url = "https://services.leadconnectorhq.com/calendars/"
 
         params = {
             "locationId": locationId
@@ -28,7 +28,7 @@ def getUsers():
 
         header = {
             "Authorization": f"Bearer {authorization}",
-            "Version": "2021-07-28"
+            "Version": "2021-04-15"
         }
 
         r = get(url=url, params=params, headers=header)
@@ -39,16 +39,16 @@ def getUsers():
             logger.error(f"Ocorreu um erro na requisição dos usuários: {r.text}")
             return None
 
-        logger.info("Usuários obtidos com sucesso")
+        logger.info("Calendários obtidos com sucesso")
 
 
         # Transforma em JSON
         r = r.json()
 
 
-        # Verifica se existem usuários
-        if len(r["users"]) == 0:
-            logger.info("Nenhum Usuário Encontrado")
+        # Verifica se existem Calendários
+        if len(r["calendars"]) == 0:
+            logger.info("Nenhum Calendário Encontrado")
             return None
 
 
@@ -56,44 +56,37 @@ def getUsers():
         connection = Database.get_connection()
         cursor = connection.cursor()
 
-        # Para cada Usuário:
-        for user in r["users"]:
+        # Para cada Calendário:
+        for calendar in r["calendars"]:
 
             # Prepara query de inserção
             query = """
-                INSERT INTO agenciavfx.users (
-                    id, name, firstName, lastName, email, phone
+                INSERT INTO agenciavfx.calendars (
+                    id, name
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s
+                    %s, %s
                 )
                 ON DUPLICATE KEY UPDATE
                     name = VALUES(name),
-                    firstName = VALUES(firstName),
-                    lastName = VALUES(lastName),
-                    email = VALUES(email),
-                    phone = VALUES(phone)
+                    description = VALUES(description)
             """
             
             # Prepara valores com tratamento de campos vazios
             values = (
-                user.get('id') or None,  # Campos obrigatórios mantêm .get('campo')
-                user.get('name', None),  # Campos opcionais usam valor default None
-                user.get('firstName', None),
-                user.get('lastName', None),
-                user.get('email', None),
-                user.get('phone', None)
+                calendar.get('id') or None,  # Campos obrigatórios mantêm .get('campo')
+                calendar.get('name', None)
             )
 
             try:
                 cursor.execute(query, values)
-                logger.debug(f"Usuário {user.get('name')} inserido/atualizado com sucesso")
+                logger.debug(f"Calendário {calendar.get('name')} inserido/atualizado com sucesso")
             except mysql.connector.Error as e:
-                logger.error(f"Erro ao inserir Usuário {user.get('name')}: {str(e)}")
+                logger.error(f"Erro ao inserir Calendário {calendar.get('name')}: {str(e)}")
                 continue
 
         # Commit das alterações
         connection.commit()
-        logger.info(f"{len(r['users'])} Usuários inseridos/atualizados")
+        logger.info(f"{len(r['calendars'])} Calendário inseridos/atualizados")
 
     except Exception as e:
         logger.error(f"Ocorreu um erro: {e}")
@@ -103,4 +96,4 @@ if __name__ == "__main__":
     # Inicializa conexão com banco
     Database.initialize()
     
-    getUsers()
+    getCalendars()
