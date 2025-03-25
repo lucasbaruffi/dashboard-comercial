@@ -2,7 +2,6 @@ from logging_config import logging
 from requests import get
 from os import getenv
 from dotenv import load_dotenv
-from logging_config import logging
 from functions.date import definePeriodo
 
 
@@ -21,7 +20,7 @@ def getMeetings():
 
 
         # Requisição HTTP
-        url = "https://services.leadconnectorhq.com/calendars/events/appointments/{eventId}"
+        url = "https://services.leadconnectorhq.com/calendars/events"
 
         params = {
             "locationId": locationId,
@@ -43,6 +42,7 @@ def getMeetings():
             logging.error(f"Ocorreu um erro na requisição das reuniões: {r.text}")
             return None
 
+        logging.info("Reuniões obtidas com sucesso")
 
         # Transforma em JSON
         r = r.json()

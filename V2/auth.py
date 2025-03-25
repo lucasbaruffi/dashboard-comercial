@@ -9,8 +9,6 @@ from logging_config import configurar_logging
 
 logger = configurar_logging()
 
-logger.info("Aplicação Iniciada")
-
 # Carrega as variáveis de ambiente
 load_dotenv()
 
@@ -25,7 +23,7 @@ calendarId = os.getenv('GHL_CALENDAR_ID')
 authToken = os.getenv('GHL_AUTHORIZATION')
 refreshToken = os.getenv('GHL_REFRESH_TOKEN')
 
-logger.info("Variáveis de ambiente carregadas")
+logger.info("Iniciando Autenticação")
 
 
 # Isto serve para deixar um servidor online para receber o código de autorização
