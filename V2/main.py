@@ -1,8 +1,9 @@
+from logging_config import logging
 from auth import ghlAuthorization
-from V2.meetings.meetings import pegarSalvarReuniões
+from meetings.meetings import pegarSalvarReuniões
 
-# Aplicativo Principal
 if __name__ == "__main__":
-    # Faz a atenticação com o GHL
+    logging.info("Aplicação Iniciada")
+    # Faz a autenticação com o GHL
     ghlAuthorization()
     pegarSalvarReuniões()

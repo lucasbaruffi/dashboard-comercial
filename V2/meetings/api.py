@@ -1,16 +1,20 @@
 from requests import get
 from os import getenv
-from functions.date import definePeriodo
 from dotenv import load_dotenv
 from logging_config import logging
+import sys
+from pathlib import Path
+
+# Adiciona o diretório raiz ao PYTHONPATH
+sys.path.append(str(Path(__file__).parent.parent))
+
+from functions.date import definePeriodo
 
 def getMeetings():
     '''
     Faz a requisição na API e retorna o JSON
     '''
-
     try:
-
         load_dotenv()
 
         calendarId = getenv("GHL_CALENDAR_ID")
@@ -21,7 +25,6 @@ def getMeetings():
 
         url = "https://services.leadconnectorhq.com/calendars/events/appointments/{eventId}"
 
-        # Define os parâmetros necessários para a requisição
         params = {
             "locationId": locationId,
             "calendarId": calendarId,
@@ -30,15 +33,17 @@ def getMeetings():
         }
 
         header = {
-        "Authorization": f"Bearer {authorization}",
-        "Version": "2021-04-15"
+            "Authorization": f"Bearer {authorization}",
+            "Version": "2021-04-15"
         }
 
         r = get(url=url, params=params, headers=header)
-
+        r.raise_for_status()
+        return r.json()
 
     except Exception as e:
         logging.error(f"Ocorreu um erro: {e}")
+        raise
 
 if __name__ == "__main__":
     getMeetings()
