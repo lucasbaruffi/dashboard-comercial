@@ -158,7 +158,8 @@ def auth():
         "locations/customFields.readonly",
         "users.readonly",
         "contacts.readonly",
-        "locations/customFields.readonly"
+        "locations/customFields.readonly",
+        "opportunities.readonly"
     ]
 
     # Cria a sessão OAuth

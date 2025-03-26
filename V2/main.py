@@ -5,6 +5,9 @@ from database import Database
 from users import getUsers
 from calendars import getCalendars
 from contactCustomFields import getContactsCustomFields
+from contacts import getContacts
+from opportunityCustomFiels import getOpportunitiesCustomFields
+from pipelines import getPipelines
 
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
@@ -27,6 +30,15 @@ if __name__ == "__main__":
 
         # Busca campos personalizados do contato
         getContactsCustomFields()
+
+        # Busca contatos
+        getContacts()
+
+        # Busca campos personalizados da oportunidade
+        getOpportunitiesCustomFields()
+
+        # Busca pipelines
+        getPipelines()
 
         # Busca reuniões
         getMeetings()
