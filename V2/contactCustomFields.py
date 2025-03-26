@@ -8,10 +8,10 @@ import mysql.connector
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
 
-def getContacts():
+def getContactsCustomFields():
     try:
 
-        logger.info("Iniciando a busca de contatos")
+        logger.info("Iniciando a busca de campos personalizados dos contatos")
         # Carrega as variáveis de ambiente
         load_dotenv()
 
@@ -110,4 +110,4 @@ if __name__ == "__main__":
     # Inicializa conexão com banco
     Database.initialize()
     
-    getContacts()
+    getContactsCustomFields()
