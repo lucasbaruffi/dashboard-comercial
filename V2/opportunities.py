@@ -12,7 +12,7 @@ logger = configurar_logging()
 def getOpportunities():
     try:
 
-        logger.info("Iniciando a busca de contatos")
+        logger.info("Iniciando a busca de Oportunidades")
         # Carrega as variáveis de ambiente
         load_dotenv()
 
@@ -21,7 +21,7 @@ def getOpportunities():
 
 
         # Define a URL de requisição primária, as próximas serão para pegar os contatos que faltam
-        url = f"https://services.leadconnectorhq.com/contacts/?locationId={locationId}&limit=100"
+        url = f"https://services.leadconnectorhq.com/opportunities/search/?location_id={locationId}&limit=100"
 
         header = {
             "Authorization": f"Bearer {authorization}",
@@ -39,10 +39,10 @@ def getOpportunities():
 
             # Verifica se a requisição foi bem sucedida
             if r.status_code != 200:
-                logger.error(f"Ocorreu um erro na requisição dos Clientes: {r.text}")
+                logger.error(f"Ocorreu um erro na requisição das Oportunidades: {r.text}")
                 return None
 
-            logger.info("Clientes obtidos com sucesso")
+            logger.info("Oportunidades obtidas com sucesso")
 
 
             # Transforma em JSON
@@ -52,10 +52,9 @@ def getOpportunities():
             # Deefine a próxima URL	
             url = r.get("meta", {}).get("nextPageUrl", None)
 
-            print(len(r["contacts"]))
-            # Verifica se existem contatos
-            if len(r["contacts"]) == 0:
-                logger.info("Nenhum Contato Encontrado")
+            # Verifica se existem Oportunidades
+            if len(r["opportunities"]) == 0:
+                logger.info("Nenhum Oportunidade Encontrada")
                 return None
 
 
@@ -64,117 +63,72 @@ def getOpportunities():
             cursor = connection.cursor()
 
 
-            # Para cada contato:
-            for contact in r["contacts"]:
-
+            # Para cada oportunidade:
+            for opportunity in r["opportunities"]:
                 # Prepara query de inserção
                 query = """
-                    INSERT INTO agenciavfx.contacts (
-                        id,
-                        name,
-                        firstName,
-                        lastName,
-                        email,
-                        phone,
-                        companyName,
-                        source,
-                        assignedTo,
-                        city,
-                        state,
-                        postalCode,
-                        address,
-                        dateAdded,
-                        dateUpdated,
-                        dateOfBirth,
-                        website
+                    INSERT INTO agenciavfx.opportunities (
+                        id, name, monetaryValue, pipelineId, pipelineStageId,
+                        assignedTo, status, source, lastStatusChangeAt,
+                        lastStageChangeAt, lastActionDate, createdAt,
+                        updatedAt, contactId
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s,
+                        %s, %s, %s,
+                        %s, %s
                     )
                     ON DUPLICATE KEY UPDATE
                         name = VALUES(name),
-                        firstName = VALUES(firstName),
-                        lastName = VALUES(lastName),
-                        email = VALUES(email),
-                        phone = VALUES(phone),
-                        companyName = VALUES(companyName),
-                        source = VALUES(source),
+                        monetaryValue = VALUES(monetaryValue),
+                        pipelineId = VALUES(pipelineId),
+                        pipelineStageId = VALUES(pipelineStageId),
                         assignedTo = VALUES(assignedTo),
-                        city = VALUES(city),
-                        state = VALUES(state),
-                        postalCode = VALUES(postalCode),
-                        address = VALUES(address),
-                        dateAdded = VALUES(dateAdded),
-                        dateUpdated = VALUES(dateUpdated),
-                        dateOfBirth = VALUES(dateOfBirth),
-                        website = VALUES(website)
+                        status = VALUES(status),
+                        source = VALUES(source),
+                        lastStatusChangeAt = VALUES(lastStatusChangeAt),
+                        lastStageChangeAt = VALUES(lastStageChangeAt),
+                        lastActionDate = VALUES(lastActionDate),
+                        updatedAt = VALUES(updatedAt),
+                        contactId = VALUES(contactId)
                 """
 
                 # Formatando as Datas
-                dateAdded = iso_to_datetime(contact.get('dateAdded'))
-                dateUpdated = iso_to_datetime(contact.get('dateUpdated'))
-
+                lastStatusChangeAt = iso_to_datetime(opportunity.get('lastStatusChangeAt'))
+                lastStageChangeAt = iso_to_datetime(opportunity.get('lastStageChangeAt'))
+                lastActionDate = iso_to_datetime(opportunity.get('lastActionDate'))
+                createdAt = iso_to_datetime(opportunity.get('createdAt'))
+                updatedAt = iso_to_datetime(opportunity.get('updatedAt'))
 
                 # Montando a tupla de valores
                 values = (
-                    contact.get('id') or None,
-                    contact.get('contactName', None),
-                    contact.get('firstNameRaw', None),
-                    contact.get('lastNameRaw', None),
-                    contact.get('email', None),
-                    contact.get('phone', None),
-                    contact.get('companyName', None),
-                    contact.get('source', None),
-                    contact.get('assignedTo', None),
-                    contact.get('city', None),
-                    contact.get('state', None),
-                    contact.get('postalCode', None),
-                    contact.get('address1', None),
-                    dateAdded,   
-                    dateUpdated, 
-                    contact.get('dateOfBirth', None),
-                    contact.get('website', None)
-                    )
+                    opportunity.get('id') or None,
+                    opportunity.get('name', None),
+                    opportunity.get('monetaryValue', None),
+                    opportunity.get('pipelineId', None),
+                    opportunity.get('pipelineStageId', None),
+                    opportunity.get('assignedTo', None),
+                    opportunity.get('status', None),
+                    opportunity.get('source', None),
+                    lastStatusChangeAt,
+                    lastStageChangeAt,
+                    lastActionDate,
+                    createdAt,
+                    updatedAt,
+                    opportunity.get('contactId', None)
+                )
 
                 try:
                     cursor.execute(query, values)
-                    logger.debug(f"Contato {contact.get('contactName')} inserido/atualizado com sucesso")
+                    logger.debug(f"Oportunidade {opportunity.get('name')} inserida/atualizada com sucesso")
                 except mysql.connector.Error as e:
-                    logger.error(f"Erro ao inserir Usuário {contact.get('contactName')}: {str(e)}")
+                    logger.error(f"Erro ao inserir Oportunidade {opportunity.get('name')}: {str(e)}")
                     continue
-
-                
-                # Salva os Campos Personalizados
-                for customField in contact.get("customFields", []):
-                    query = """
-                        INSERT INTO contact_custom_field_value (
-                            contact_id, field_id, field_value
-                        ) VALUES (
-                            %s, %s, %s
-                        )
-                        ON DUPLICATE KEY UPDATE
-                            field_value = VALUES(field_value)
-                    """
-                    
-                    values = (
-                        contact.get('id') or None,
-                        customField.get('id') or None,
-                        customField.get('value') or None
-                    )
-                    
-                    try:
-                        cursor.execute(query, values)
-                        logger.debug(f"Campo Personalizado {customField.get('id')} inserido/atualizado com sucesso")
-                    except mysql.connector.Error as e:
-                        logger.error(f"Erro ao inserir Campo Personalizado {customField.get('id')}: {str(e)}")
-                        continue
-
 
 
             # Commit das alterações
             connection.commit()
-            logger.info(f"{len(r['contacts'])} contatos inseridos/atualizados")
+            logger.info(f"{len(r['opportunities'])} oportunidades inseridas/atualizadas")
 
     except Exception as e:
         logger.error(f"Ocorreu um erro: {e}")
