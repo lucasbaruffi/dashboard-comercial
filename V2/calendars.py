@@ -67,8 +67,7 @@ def getCalendars():
                     %s, %s
                 )
                 ON DUPLICATE KEY UPDATE
-                    name = VALUES(name),
-                    description = VALUES(description)
+                    name = VALUES(name)
             """
             
             # Prepara valores com tratamento de campos vazios

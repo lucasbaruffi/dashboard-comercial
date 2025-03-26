@@ -4,6 +4,7 @@ from meetings import getMeetings
 from database import Database
 from users import getUsers
 from calendars import getCalendars
+from contactCustomFields import getContactsCustomFields
 
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
@@ -23,6 +24,9 @@ if __name__ == "__main__":
 
         # Busca calendários
         getCalendars()
+
+        # Busca campos personalizados do contato
+        getContactsCustomFields()
 
         # Busca reuniões
         getMeetings()

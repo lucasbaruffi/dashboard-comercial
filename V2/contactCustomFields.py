@@ -11,7 +11,7 @@ logger = configurar_logging()
 def getContactsCustomFields():
     try:
 
-        logger.info("Iniciando a busca de campos personalizados dos contatos")
+        logger.info("Iniciando a busca de campos personalizados de contatos")
         # Carrega as variáveis de ambiente
         load_dotenv()
 
@@ -19,88 +19,79 @@ def getContactsCustomFields():
         authorization = getenv("GHL_AUTHORIZATION")
 
 
-        # Define a URL de requisição primária, as próximas serão para pegar os contatos que faltam
-        url = f"https://services.leadconnectorhq.com/contacts/?locationId={locationId}&limit=1&query=Baruffi"
+        # Requisição HTTP
+        url = f"https://services.leadconnectorhq.com/locations/{locationId}/customFields"
+
+        params = {
+            "model": "contact"
+        }
 
         header = {
             "Authorization": f"Bearer {authorization}",
             "Version": "2021-07-28"
         }
 
-        # O loop é necessário para obter todos os usuários, pois a API retorna 100 por vez
-        while url != None:
-
-            # Requisição HTTP
-            r = get(url=url, headers=header)
+        r = get(url=url, params=params, headers=header)
 
 
-            # Verifica se a requisição foi bem sucedida
-            if r.status_code != 200:
-                logger.error(f"Ocorreu um erro na requisição dos Clientes: {r.text}")
-                return None
+        # Verifica se a requisição foi bem sucedida
+        if r.status_code != 200:
+            logger.error(f"Ocorreu um erro na requisição dos Contact Custom Fields: {r.text}")
+            return None
 
-            logger.info("Clientes obtidos com sucesso")
-
-
-            # Transforma em JSON
-            r = r.json()
+        logger.info("Contact Custom Fields obtidos com sucesso")
 
 
-            # Deefine a próxima URL	
-            url = r.get("meta", {}).get("nextPageUrl", None)
+        # Transforma em JSON
+        r = r.json()
 
 
-            # Verifica se existem contatos
-            if len(r["contacts"]) == 0:
-                logger.info("Nenhum Usuário Encontrado")
-                return None
+        # Verifica se existem Calendários
+        if len(r["customFields"]) == 0:
+            logger.info("Nenhum Contact Custom Field encontrado")
+            return None
 
 
-            # Usa a conexão já estabelecida
-            connection = Database.get_connection()
-            cursor = connection.cursor()
+        # Usa a conexão já estabelecida
+        connection = Database.get_connection()
+        cursor = connection.cursor()
 
+        # Para cada Calendário:
+        for customField in r["customFields"]:
 
-            # Para cada contato:
-            for contact in r["contacts"]:
-
-                print (contact)
-
-                # Prepara query de inserção
-                query = """
-                    INSERT INTO agenciavfx.contacts (
-                        id, name, firstName, lastName, email, phone
-                    ) VALUES (
-                        %s, %s, %s, %s, %s, %s
-                    )
-                    ON DUPLICATE KEY UPDATE
-                        name = VALUES(name),
-                        firstName = VALUES(firstName),
-                        lastName = VALUES(lastName),
-                        email = VALUES(email),
-                        phone = VALUES(phone)
-                """
-                
-                # Prepara valores com tratamento de campos vazios
-                values = (
-                    user.get('id') or None,  # Campos obrigatórios mantêm .get('campo')
-                    user.get('name', None),  # Campos opcionais usam valor default None
-                    user.get('firstName', None),
-                    user.get('lastName', None),
-                    user.get('email', None),
-                    user.get('phone', None)
+            # Prepara query de inserção
+            query = """
+                INSERT INTO contact_custom_field (
+                    id, name, fieldKey, placeholder, dataType
+                ) VALUES (
+                    %s, %s, %s, %s, %s
                 )
+                ON DUPLICATE KEY UPDATE
+                    name = VALUES(name),
+                    fieldKey = VALUES(placeholder),
+                    placeholder = VALUES(placeholder),
+                    dataType = VALUES(dataType)
+            """
+            
+            # Prepara valores com tratamento de campos vazios
+            values = (
+                customField.get('id') or None,  # Campos obrigatórios mantêm .get('campo')
+                customField.get('name', None),
+                customField.get('fieldKey', None),
+                customField.get('placeholder', None),
+                customField.get('dataType', None)
+            )
 
-                try:
-                    cursor.execute(query, values)
-                    logger.debug(f"Usuário {user.get('name')} inserido/atualizado com sucesso")
-                except mysql.connector.Error as e:
-                    logger.error(f"Erro ao inserir Usuário {user.get('name')}: {str(e)}")
-                    continue
+            try:
+                cursor.execute(query, values)
+                logger.debug(f"Contact Custom Field {customField.get('name')} inserido/atualizado com sucesso")
+            except mysql.connector.Error as e:
+                logger.error(f"Erro ao inserir Contact Custom Field {customField.get('name')}: {str(e)}")
+                continue
 
         # Commit das alterações
         connection.commit()
-        logger.info(f"{len(r['users'])} Usuários inseridos/atualizados")
+        logger.info(f"{len(r['customFields'])} Contact Custom Field inseridos/atualizados")
 
     except Exception as e:
         logger.error(f"Ocorreu um erro: {e}")
