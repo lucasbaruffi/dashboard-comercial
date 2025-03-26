@@ -52,3 +52,32 @@ def definePeriodo(diasAntes: int = 30, diasDepois: int = 15):
 
     except Exception as erro:
         logging.info(f"Ocorreu um erro: {erro}")
+
+def iso_to_datetime(data_iso: str) -> str:
+    '''
+    Converte data ISO 8601 para formato MySQL (YYYY-MM-DD HH:mm:ss)
+    
+    Params:
+        data_iso (str): Data no formato ISO (2023-09-25T16:00:00+05:30)
+    
+    Returns:
+        str: Data formatada (2023-09-25 16:00:00) ou None se inválida
+        
+    Example:
+        >>> iso_to_datetime("2023-09-25T16:00:00+05:30")
+        >>> "2023-09-25 16:00:00"
+    '''
+    try:
+        from datetime import datetime
+        if not data_iso:
+            return None
+            
+        # Converte string ISO para datetime
+        data_datetime = datetime.fromisoformat(data_iso.replace('Z', '+00:00'))
+        
+        # Formata para string no padrão MySQL
+        return data_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        
+    except Exception as e:
+        logging.error(f"Erro ao converter data ISO: {e}")
+        return None
