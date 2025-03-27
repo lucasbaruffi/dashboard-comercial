@@ -32,7 +32,7 @@ def getContacts():
         while url != None:
             import time
 
-            time.sleep(0.1)
+            time.sleep(0.2)
             # Requisição HTTP
             r = get(url=url, headers=header)
 

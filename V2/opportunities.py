@@ -32,7 +32,7 @@ def getOpportunities():
         while url != None:
             import time
 
-            time.sleep(0.1)
+            time.sleep(0.2)
             # Requisição HTTP
             r = get(url=url, headers=header)
 
@@ -124,6 +124,33 @@ def getOpportunities():
                 except mysql.connector.Error as e:
                     logger.error(f"Erro ao inserir Oportunidade {opportunity.get('name')}: {str(e)}")
                     continue
+
+
+                # Salva os Campos Personalizados
+                for customField in opportunity.get("customFields", []):
+                    query = """
+                        INSERT INTO opportunity_custom_field_value (
+                            opportunity_id, field_id, field_value
+                        ) VALUES (
+                            %s, %s, %s
+                        )
+                        ON DUPLICATE KEY UPDATE
+                            field_value = VALUES(field_value)
+                    """
+                    
+                    values = (
+                        opportunity.get('id') or None,
+                        customField.get('id') or None,
+                        customField.get('fieldValueString') or None
+                    )
+                    
+                    try:
+                        cursor.execute(query, values)
+                        logger.debug(f"Campo Personalizado {customField.get('id')} inserido/atualizado com sucesso")
+                    except mysql.connector.Error as e:
+                        logger.error(f"Erro ao inserir Campo Personalizado {customField.get('id')}: {str(e)}")
+                        continue
+
 
 
             # Commit das alterações

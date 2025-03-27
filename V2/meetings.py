@@ -109,7 +109,7 @@ def getMeetings():
                 evento.get('calendarId', None),
                 evento.get('contactId', None),
                 evento.get('groupId', None),
-                evento.get('status', None),  
+                evento.get('appointmentStatus', None),  
                 evento.get('assignedUserId', None),
                 evento.get('notes', None),
                 str(evento.get('isRecurring', False)), 
@@ -123,7 +123,7 @@ def getMeetings():
 
             try:
                 cursor.execute(query, values)
-                logging.DEBUG(f"Reunião {evento.get('id')} - {evento.get('title')} inserida/atualizada com sucesso")
+                logging.debug(f"Reunião {evento.get('id')} - {evento.get('title')} inserida/atualizada com sucesso")
             except mysql.connector.Error as e:
                 logging.error(f"Erro ao inserir reunião {evento.get('id')} - {evento.get('title')}: {str(e)}")
                 continue

@@ -8,6 +8,7 @@ from contactCustomFields import getContactsCustomFields
 from contacts import getContacts
 from opportunityCustomFiels import getOpportunitiesCustomFields
 from pipelines import getPipelines
+from opportunities import getOpportunities
 
 # Configura o logger (Obrigatório em todos os arquivos)
 logger = configurar_logging()
@@ -39,6 +40,9 @@ if __name__ == "__main__":
 
         # Busca pipelines
         getPipelines()
+
+        # Busca oportunidades
+        getOpportunities()
 
         # Busca reuniões
         getMeetings()
