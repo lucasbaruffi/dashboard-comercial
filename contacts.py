@@ -28,6 +28,8 @@ def getContacts():
             "Version": "2021-07-28"
         }
 
+        contatos = 0
+
         # O loop é necessário para obter todos os usuários, pois a API retorna 100 por vez
         while url != None:
             import time
@@ -42,7 +44,7 @@ def getContacts():
                 logger.error(f"Ocorreu um erro na requisição dos Clientes: {r.text}")
                 return None
 
-            logger.info("Clientes obtidos com sucesso")
+            # logger.info("Clientes obtidos com sucesso")
 
 
             # Transforma em JSON
@@ -52,7 +54,6 @@ def getContacts():
             # Deefine a próxima URL	
             url = r.get("meta", {}).get("nextPageUrl", None)
 
-            print(len(r["contacts"]))
             # Verifica se existem contatos
             if len(r["contacts"]) == 0:
                 logger.info("Nenhum Contato Encontrado")
@@ -169,12 +170,14 @@ def getContacts():
                     except mysql.connector.Error as e:
                         logger.error(f"Erro ao inserir Campo Personalizado {customField.get('id')}: {str(e)}")
                         continue
-
+            
+            # Adiciona os contatos inseridos na contagem total
+            contatos += len(r["contacts"])
 
 
             # Commit das alterações
             connection.commit()
-            logger.info(f"{len(r['contacts'])} contatos inseridos/atualizados")
+            logger.info(f"Atualizados {contatos} / {r["meta"]["total"]} contatos")
 
     except Exception as e:
         logger.error(f"Ocorreu um erro: {e}")
