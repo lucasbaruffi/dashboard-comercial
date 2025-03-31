@@ -5,6 +5,7 @@ from logging_config import logging
 
 class Database:
     _connection = None
+    _database = None
 
     @classmethod
     def initialize(cls):
@@ -16,10 +17,7 @@ class Database:
             db_host = getenv("DB_HOST")
             db_user = getenv("DB_USER")
             db_pass = getenv("DB_PASS")
-            db_name = getenv("DB_NAME")
-
-            # if not all([db_host, db_user, db_pass, db_name]):
-            #     raise ValueError("Credenciais do banco de dados incompletas")
+            cls._database = getenv("DB_NAME")  # Armazena nome do banco
 
             logging.info("Inicializando conexão com banco de dados")
 
@@ -32,7 +30,7 @@ class Database:
             
             # Seleciona o banco
             cursor = cls._connection.cursor()
-            cursor.execute(f"USE {db_name}")
+            cursor.execute(f"USE {cls._database}")
             
             logging.info("Conexão com banco estabelecida com sucesso")
             return True
@@ -50,3 +48,8 @@ class Database:
         if cls._connection is None or not cls._connection.is_connected():
             raise ConnectionError("Conexão com banco não inicializada")
         return cls._connection
+
+    @classmethod
+    def get_database_name(cls):
+        """Retorna o nome do banco de dados atual"""
+        return cls._database

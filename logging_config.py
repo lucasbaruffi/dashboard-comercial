@@ -14,7 +14,7 @@ def configurar_logging():
     
     # Configura o logging
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,  # Define o nível de log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         # Formato: 2024-03-20 14:30:25 | INFO | Mensagem
         format='%(asctime)s | %(levelname)s | %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',

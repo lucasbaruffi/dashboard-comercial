@@ -61,7 +61,7 @@ def getPipelines():
 
             # Prepara query de inserção
             query = """
-                INSERT INTO agenciavfx.pipelines (
+                INSERT INTO pipelines (
                     id, name
                 ) VALUES (
                     %s, %s
@@ -85,7 +85,7 @@ def getPipelines():
             
             for stage in pipeline["stages"]:
                 query = """
-                    INSERT INTO agenciavfx.pipelineStages (
+                    INSERT INTO pipelinestages (
                         id, name, pipelineId
                     ) VALUES (
                         %s, %s, %s

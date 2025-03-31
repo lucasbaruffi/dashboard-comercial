@@ -69,7 +69,7 @@ def getContacts():
 
                 # Prepara query de inserção
                 query = """
-                    INSERT INTO agenciavfx.contacts (
+                    INSERT INTO contacts (
                         id,
                         name,
                         firstName,

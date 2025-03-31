@@ -11,7 +11,10 @@ def iniciarPrograma():
     from opportunityCustomFiels import getOpportunitiesCustomFields
     from pipelines import getPipelines
     from opportunities import getOpportunities
-    
+    from time import time
+    from datetime import timedelta
+    inicio = time()
+
     # Configura o logger (Obrigatório em todos os arquivos)
     logger = configurar_logging()
     
@@ -33,7 +36,7 @@ def iniciarPrograma():
     
             # Busca campos personalizados do contato
             getContactsCustomFields()
-    
+
             # Busca contatos
             getContacts()
     
@@ -54,5 +57,7 @@ def iniciarPrograma():
         except Exception as e:
             logger.error(f"Erro crítico: {e}")
             logger.critical("Programa finalizado com erro")
-
+    fim = time()
+    tempo_execucao = timedelta(seconds=(fim - inicio))
+    logger.info(f"Tempo total de execução: {tempo_execucao}")
 iniciarPrograma()

@@ -67,7 +67,7 @@ def getOpportunities():
             for opportunity in r["opportunities"]:
                 # Prepara query de inserção
                 query = """
-                    INSERT INTO agenciavfx.opportunities (
+                    INSERT INTO opportunities (
                         id, name, monetaryValue, pipelineId, pipelineStageId,
                         assignedTo, status, source, lastStatusChangeAt,
                         lastStageChangeAt, lastActionDate, createdAt,

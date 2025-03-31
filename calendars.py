@@ -61,7 +61,7 @@ def getCalendars():
 
             # Prepara query de inserção
             query = """
-                INSERT INTO agenciavfx.calendars (
+                INSERT INTO calendars (
                     id, name
                 ) VALUES (
                     %s, %s

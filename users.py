@@ -61,7 +61,7 @@ def getUsers():
 
             # Prepara query de inserção
             query = """
-                INSERT INTO agenciavfx.users (
+                INSERT INTO users (
                     id, name, firstName, lastName, email, phone
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s

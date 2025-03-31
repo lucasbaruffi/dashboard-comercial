@@ -75,7 +75,7 @@ def getMeetings():
 
             # Prepara query de inserção
             query = """
-                INSERT INTO agenciavfx.meetings (
+                INSERT INTO meetings (
                     id, address, title, calendarId, contactId, groupId,
                     appointmentStatus, assignedUserId, notes, isRecurring,
                     startTime, endTime, dateAdded, dateUpdated,
