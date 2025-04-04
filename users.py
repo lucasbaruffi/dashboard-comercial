@@ -11,6 +11,9 @@ logger = configurar_logging()
 def getUsers():
     try:
 
+        # Define a foto padrão (caso não exista)
+        fotoPadrao = getenv("GHL_DEFAULT_PHOTO")
+
         logger.info("Iniciando a busca de usuários")
         # Carrega as variáveis de ambiente
         load_dotenv()
@@ -62,16 +65,17 @@ def getUsers():
             # Prepara query de inserção
             query = """
                 INSERT INTO users (
-                    id, name, firstName, lastName, email, phone
+                    id, name, firstName, lastName, email, phone, profilePhoto
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s, %s, %s
                 )
                 ON DUPLICATE KEY UPDATE
                     name = VALUES(name),
                     firstName = VALUES(firstName),
                     lastName = VALUES(lastName),
                     email = VALUES(email),
-                    phone = VALUES(phone)
+                    phone = VALUES(phone),
+                    profilePhoto = VALUES(profilePhoto)
             """
             
             # Prepara valores com tratamento de campos vazios
@@ -81,7 +85,8 @@ def getUsers():
                 user.get('firstName', None),
                 user.get('lastName', None),
                 user.get('email', None),
-                user.get('phone', None)
+                user.get('phone', None),
+                user.get('profilePhoto', fotoPadrao)  # Substitua 'fotoPadrao' por um valor padrão adequado
             )
 
             try:
